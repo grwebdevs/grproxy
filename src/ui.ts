@@ -1,5 +1,150 @@
 import { ProxyItem, EdgeNode, PoolStats, FailoverState } from './types';
 
+export function renderSingleProxyCardHtml(p: ProxyItem): string {
+  const pingClass =
+    p.latency < 80
+      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+      : p.latency < 160
+      ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+      : 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+  const protoBadge =
+    p.protocol === 'mtproto'
+      ? '<span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-[10px] font-bold">MTProto</span>'
+      : '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded text-[10px] font-bold">SOCKS5</span>';
+
+  const fullCreds =
+    p.protocol === 'mtproto'
+      ? `Server: ${p.ip}\\nPort: ${p.port}\\nProtocol: MTProto\\nSecret: ${p.secret || ''}\\nTG Link: ${p.tgLink}`
+      : `Server: ${p.ip}\\nPort: ${p.port}\\nProtocol: SOCKS5\\nUser: ${p.username || 'none'}\\nPass: ${p.password || 'none'}`;
+
+  return `
+    <div class="glass-card p-5 rounded-3xl border border-slate-800/80 hover:border-slate-700 transition duration-200 flex flex-col justify-between space-y-3.5">
+      <!-- Header Row -->
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-3">
+          <span class="text-3xl">${p.flag || '🌐'}</span>
+          <div>
+            <h4 class="font-bold text-white text-xs font-mono">${p.country || 'Global'}</h4>
+            <div class="text-[11px] text-slate-400 font-mono">${p.ip}:${p.port}</div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          ${protoBadge}
+          <span class="font-mono text-xs font-bold px-2 py-0.5 rounded border ${pingClass}">${p.latency}ms</span>
+        </div>
+      </div>
+
+      <!-- Prominent Credentials Box -->
+      <div class="bg-slate-950/80 p-3 rounded-2xl border border-slate-800/90 font-mono text-xs space-y-2">
+        <div class="flex justify-between items-center text-slate-400">
+          <span>IP / Host:</span>
+          <div class="flex items-center space-x-1">
+            <span class="text-slate-200 select-all font-bold">${p.ip}</span>
+            <button onclick="copyToClipboard('${p.ip}', 'IP copied!')" class="text-brand-400 text-[10px] hover:underline px-1">copy</button>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center text-slate-400">
+          <span>Port:</span>
+          <div class="flex items-center space-x-1">
+            <span class="text-brand-400 select-all font-bold">${p.port}</span>
+            <button onclick="copyToClipboard('${p.port}', 'Port copied!')" class="text-brand-400 text-[10px] hover:underline px-1">copy</button>
+          </div>
+        </div>
+
+        ${
+          p.protocol === 'mtproto'
+            ? `
+          <div class="space-y-1 pt-1 border-t border-slate-900">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400 text-[10px] uppercase font-semibold">MTProto Secret:</span>
+              <button onclick="copyToClipboard('${p.secret}', 'Secret copied!')" class="text-brand-400 text-[10px] font-bold hover:underline">📋 Copy Secret</button>
+            </div>
+            <div class="text-slate-300 text-[10px] truncate select-all bg-slate-900/60 p-1.5 rounded border border-slate-900 font-mono font-bold">
+              ${p.secret || 'default'}
+            </div>
+          </div>
+        `
+            : `
+          <div class="space-y-1 pt-1 border-t border-slate-900">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400 text-[10px] uppercase font-semibold">SOCKS5 Auth:</span>
+              <button onclick="copyToClipboard('${p.username || ''}:${p.password || ''}', 'Auth credentials copied!')" class="text-brand-400 text-[10px] font-bold hover:underline">📋 Copy Auth</button>
+            </div>
+            <div class="text-slate-300 text-[10px] truncate select-all bg-slate-900/60 p-1.5 rounded border border-slate-900 font-mono">
+              ${p.username ? `User: ${p.username} | Pass: ${p.password}` : 'No Authentication Required (Open)'}
+            </div>
+          </div>
+        `
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-1.5 pt-1">
+        <a href="${p.tgLink}" class="flex-1 bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold py-2 px-2.5 rounded-xl text-xs text-center transition flex items-center justify-center space-x-1 shadow-sm">
+          <span>✈️ Add to TG</span>
+        </a>
+        <button onclick="openCredModal('${p.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl text-xs border border-slate-700 transition" title="Inspect Full Credentials & Commands">
+          ⚙️
+        </button>
+        <button onclick="showQrModal('${p.tgLink}', '${p.country} Proxy')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl text-xs border border-slate-700 transition" title="Show QR Code">
+          📱
+        </button>
+        <button onclick="copyToClipboard('${fullCreds}', 'All credentials copied!')" class="bg-slate-800 hover:bg-slate-700 text-brand-400 p-2 rounded-xl text-xs border border-slate-700 transition font-mono font-bold" title="Copy All Credentials">
+          📋
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+export function renderSingleEdgeCardHtml(node: EdgeNode): string {
+  return `
+    <div class="glass-card p-5 rounded-3xl border border-slate-800/80 hover:border-cyan-500/40 transition duration-300 space-y-3.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <span class="text-3xl">${node.flag}</span>
+          <div>
+            <h4 class="text-xs font-bold text-white font-mono">${node.name}</h4>
+            <span class="text-[11px] text-slate-400 font-mono">${node.city} • ${node.continent}</span>
+          </div>
+        </div>
+        <span class="px-2 py-1 rounded-lg text-xs font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          ~${node.pingEstimate} ms
+        </span>
+      </div>
+
+      <div class="bg-slate-950/80 p-3 rounded-2xl border border-slate-800 font-mono text-xs space-y-1.5">
+        <div class="text-slate-400 flex justify-between items-center">
+          <span>Clean Anycast IP:</span>
+          <div class="flex items-center space-x-1">
+            <span class="text-slate-200 font-bold">${node.cleanIp}</span>
+            <button onclick="copyToClipboard('${node.cleanIp}', 'Clean IP copied!')" class="text-cyan-400 text-[10px] hover:underline">copy</button>
+          </div>
+        </div>
+        <div class="text-slate-400 flex justify-between">
+          <span>Port / Security:</span>
+          <span class="text-brand-400">443 / TLS 1.3</span>
+        </div>
+        <div class="text-slate-400 flex justify-between">
+          <span>Protocol:</span>
+          <span class="text-cyan-400 font-bold">VLESS-WebSocket</span>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 pt-1">
+        <button onclick="copyToClipboard('${node.vlessLink}', 'VLESS URL copied!')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 px-3 rounded-xl text-xs transition border border-slate-700 flex items-center justify-center space-x-1">
+          <span>📋 Copy Link</span>
+        </button>
+        <button onclick="showQrModal('${node.vlessLink}', '${node.name}')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-semibold py-2.5 px-3 rounded-xl text-xs transition">
+          📱 QR
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 export function renderDashboardHtml(
   activePool: ProxyItem[],
   edgeNodes: EdgeNode[],
@@ -10,6 +155,10 @@ export function renderDashboardHtml(
   const serializedPool = JSON.stringify(activePool);
   const serializedNodes = JSON.stringify(edgeNodes);
   const serializedPinned = JSON.stringify(pinnedProxy);
+
+  // Pre-render initial cards server-side for instantaneous credential display
+  const initialProxyCards = activePool.slice(0, 60).map(renderSingleProxyCardHtml).join('');
+  const initialEdgeCards = edgeNodes.slice(0, 30).map(renderSingleEdgeCardHtml).join('');
 
   // Group countries for server-side filter options
   const countryCounts: Record<string, { count: number; flag: string }> = {};
@@ -355,15 +504,51 @@ export function renderDashboardHtml(
         </div>
       </div>
 
+      <!-- Pinned Live Credentials Banner -->
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-emerald-950/30 via-slate-900/60 to-slate-900/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glow-green">
+        <div class="flex items-center space-x-3.5">
+          <span class="text-3xl">${pinnedProxy.flag}</span>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-bold text-brand-400 font-mono uppercase tracking-wider">Active Auto-Pinned Route</span>
+              <span class="w-2 h-2 rounded-full bg-brand-400 pulse-dot"></span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono font-bold uppercase">${pinnedProxy.protocol}</span>
+            </div>
+            <div class="text-sm font-bold text-white font-mono mt-0.5 flex items-center space-x-2">
+              <span>${pinnedProxy.country}</span>
+              <span class="text-slate-400 font-normal">&bull;</span>
+              <span class="text-brand-300 font-bold select-all">${pinnedProxy.ip}:${pinnedProxy.port}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono truncate max-w-xl mt-0.5">
+              ${pinnedProxy.protocol === 'mtproto' ? `Secret: <span class="text-slate-300 select-all font-bold">${pinnedProxy.secret || 'default'}</span>` : `Auth: <span class="text-slate-300 select-all">User: ${pinnedProxy.username || 'none'} | Pass: ${pinnedProxy.password || 'none'}</span>`}
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 shrink-0 w-full sm:w-auto">
+          ${pinnedProxy.protocol === 'mtproto' ? `
+            <button onclick="copyToClipboard('${pinnedProxy.secret}', 'Pinned Secret copied!')" class="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-700 text-brand-400 border border-brand-500/30 font-mono font-bold text-xs py-2 px-3 rounded-xl transition">
+              📋 Copy Secret
+            </button>
+          ` : `
+            <button onclick="copyToClipboard('${pinnedProxy.ip}:${pinnedProxy.port}', 'Pinned proxy address copied!')" class="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-700 text-brand-400 border border-brand-500/30 font-mono font-bold text-xs py-2 px-3 rounded-xl transition">
+              📋 Copy Address
+            </button>
+          `}
+          <a href="${pinnedProxy.tgLink}" class="flex-1 sm:flex-initial bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs py-2 px-3.5 rounded-xl transition text-center shadow-lg shadow-brand-500/20">
+            ✈️ 1-Tap Connect
+          </a>
+        </div>
+      </div>
+
       <!-- Active Filter Status -->
       <div id="filterStatus" class="text-xs text-slate-400 flex items-center justify-between">
         <span>Showing <strong id="visibleCount" class="text-white font-mono">${activePool.length}</strong> active verified proxies with credentials</span>
         <button onclick="resetFilters()" class="text-xs text-brand-400 hover:underline">Reset Filters</button>
       </div>
 
-      <!-- Proxy Grid (Rendered via JS with Full Credential Blocks) -->
+      <!-- Proxy Grid (Pre-rendered Server-Side + Dynamic JS Filtering) -->
       <div id="proxyContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Injected via JavaScript -->
+        ${initialProxyCards}
       </div>
     </div>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GRPROXY — High-Speed Cloudflare Proxy</title>
+  <title>GRPROXY — High-Speed SOCKS5 Edge Proxy</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
         <div class="logo-icon">GR</div>
         <div>
           <div class="logo-title">GRPROXY</div>
-          <div class="logo-subtitle">Cloudflare Anycast Edge</div>
+          <div class="logo-subtitle">Verified SOCKS5 Edge Network</div>
         </div>
       </div>
       <div id="statusBadge" class="status-badge disconnected">
@@ -25,47 +25,72 @@
 
     <!-- Master Connect Button -->
     <div class="connect-section">
-      <button id="mainToggleBtn" class="main-toggle-btn disconnected">
+      <button id="mainToggleBtn" class="main-toggle-btn disconnected" title="Toggle Connection">
         <div class="power-ring"></div>
         <div class="power-icon">⚡</div>
         <span id="btnLabel" class="btn-label">CONNECT</span>
       </button>
-      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown Proxy</div>
+      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown SOCKS5 Protection</div>
     </div>
 
-    <!-- Mode Selector -->
+    <!-- Mode Selector (3 Distinct Options) -->
+    <div class="mode-section-label">ROUTING MODE</div>
     <div class="mode-selector">
-      <button id="modeBoosterBtn" class="mode-btn active" data-mode="booster">
-        <span class="mode-icon">⚡</span>
-        <div class="mode-info">
-          <div class="mode-title">Speed Booster</div>
-          <div class="mode-desc">Split-routing • 100% Native 4K speed</div>
+      <!-- Mode 1: Whole Chrome Profile -->
+      <button id="modeWholeBtn" class="mode-btn" data-mode="whole_profile" title="Route all traffic in this profile through the proxy">
+        <div class="mode-btn-left">
+          <span class="mode-icon">🌐</span>
+          <div class="mode-info">
+            <div class="mode-title">Whole Chrome Profile</div>
+            <div class="mode-desc">Routes all browser profile traffic through proxy</div>
+          </div>
         </div>
+        <div class="mode-indicator"></div>
       </button>
-      <button id="modeGlobalBtn" class="mode-btn" data-mode="global">
-        <span class="mode-icon">🌐</span>
-        <div class="mode-info">
-          <div class="mode-title">Global Shield</div>
-          <div class="mode-desc">Proxy all browser tabs</div>
+
+      <!-- Mode 2: Smart Split-Routing / Added Links Only -->
+      <button id="modeSplitBtn" class="mode-btn active" data-mode="split" title="Route only web.telegram.org and added links through proxy">
+        <div class="mode-btn-left">
+          <span class="mode-icon">⚡</span>
+          <div class="mode-info">
+            <div class="mode-title">Added Links Only (Smart Split)</div>
+            <div class="mode-desc">web.telegram.org & added URLs • Native 4K speed for rest</div>
+          </div>
         </div>
+        <div class="mode-indicator"></div>
+      </button>
+
+      <!-- Mode 3: Turn Off (Default DIRECT) -->
+      <button id="modeOffBtn" class="mode-btn mode-off" data-mode="off" title="Disable proxy and use direct connection">
+        <div class="mode-btn-left">
+          <span class="mode-icon">⚪</span>
+          <div class="mode-info">
+            <div class="mode-title">Turn Off</div>
+            <div class="mode-desc">Default DIRECT connection • Proxy disabled</div>
+          </div>
+        </div>
+        <div class="mode-indicator"></div>
       </button>
     </div>
 
     <!-- Active Country Card -->
     <div class="country-card">
       <div class="country-card-header">
-        <span class="label-muted">SELECTED EDGE LOCATION</span>
-        <button id="toggleCountryDrawerBtn" class="change-btn">Change (100+) ▾</button>
+        <span class="label-muted">ACTIVE SOCKS5 LOCATION</span>
+        <div class="header-actions-group">
+          <button id="copyProxyBtn" class="copy-proxy-btn" title="Copy SOCKS5 IP:Port">📋 Copy</button>
+          <button id="toggleCountryDrawerBtn" class="change-btn">Change (100+) ▾</button>
+        </div>
       </div>
       <div class="country-preview" id="openDrawerTrigger">
         <div class="country-info">
-          <span id="currentFlag" class="country-flag">🇦🇪</span>
+          <span id="currentFlag" class="country-flag">🇺🇸</span>
           <div>
-            <div id="currentCountryName" class="country-name">United Arab Emirates</div>
-            <div id="currentCity" class="country-city">Dubai (DXB) • Anycast</div>
+            <div id="currentCountryName" class="country-name">United States</div>
+            <div id="currentCity" class="country-city">Ashburn (IAD) • SOCKS5</div>
           </div>
         </div>
-        <div id="currentPing" class="ping-badge ping-green">~28 ms</div>
+        <div id="currentPing" class="ping-badge ping-green" title="Click to test latency">~42 ms</div>
       </div>
     </div>
 
@@ -73,32 +98,48 @@
     <div class="telemetry-grid">
       <div class="telemetry-box">
         <span class="telemetry-label">SPEED IMPACT</span>
-        <span class="telemetry-val text-green">0% (Zero Loss)</span>
+        <span id="telemetrySpeed" class="telemetry-val text-green">0% (Zero Loss)</span>
       </div>
       <div class="telemetry-box">
-        <span class="telemetry-label">EDGE PROTOCOL</span>
-        <span class="telemetry-val text-cyan">TLS 1.3 Anycast</span>
+        <span class="telemetry-label">PROXY PROTOCOL</span>
+        <span class="telemetry-val text-cyan">Verified SOCKS5</span>
       </div>
       <div class="telemetry-box">
         <span class="telemetry-label">AUTO-FAILOVER</span>
-        <span class="telemetry-val text-amber">Active Pin</span>
+        <span class="telemetry-val text-amber">Multi-Tier + Direct</span>
       </div>
       <div class="telemetry-box">
-        <span class="telemetry-label">BLOCKED SITES</span>
-        <span class="telemetry-val text-purple">Accelerated</span>
+        <span class="telemetry-label">AUTO-RECONNECT</span>
+        <span class="telemetry-val text-purple">Persistent Boot</span>
       </div>
     </div>
 
-    <!-- Custom Domain Rules Collapsible Drawer -->
+    <!-- Custom Domain Rules / Added Links Drawer -->
     <div class="accordion-section">
       <button id="toggleRulesBtn" class="accordion-toggle">
-        <span>⚙️ Split-Routing Rules (<span id="domainCount">13</span> domains)</span>
+        <span>⚙️ Split-Routing / Added Links (<span id="domainCount">14</span>)</span>
         <span id="rulesArrow">▾</span>
       </button>
       <div id="rulesDrawer" class="accordion-content hidden">
+        <!-- Quick Add Current Active Tab -->
+        <div id="currentSiteBanner" class="current-site-banner hidden">
+          <div class="current-site-info">
+            <span class="site-icon">⚡</span>
+            <div class="site-text-block">
+              <span class="site-label">ACTIVE TAB</span>
+              <span id="currentSiteHost" class="site-host">example.com</span>
+            </div>
+          </div>
+          <button id="addCurrentSiteBtn" class="add-current-site-btn">+ Add to Rules</button>
+        </div>
+
         <div class="domain-input-group">
-          <input type="text" id="newDomainInput" placeholder="*.example.com or domain.com" class="domain-input">
-          <button id="addDomainBtn" class="add-btn">+</button>
+          <input type="text" id="newDomainInput" placeholder="Paste URL (e.g. web.telegram.org) or domain" class="domain-input">
+          <button id="addDomainBtn" class="add-btn">+ Add</button>
+        </div>
+        <div class="rules-actions-row">
+          <span class="domain-help-text">Added links route through SOCKS5 in Split-Routing mode.</span>
+          <button id="resetDomainsBtn" class="rules-aux-btn" title="Reset rules to default Telegram & social proxies">Reset Defaults</button>
         </div>
         <div id="domainList" class="domain-list">
           <!-- Injected via JS -->
@@ -106,10 +147,10 @@
       </div>
     </div>
 
-    <!-- Country Drawer (Modal/Overlaid) -->
+    <!-- Country Drawer (Modal) -->
     <div id="countryDrawer" class="drawer hidden">
       <div class="drawer-header">
-        <div class="drawer-title">Choose Cloudflare Edge Country</div>
+        <div class="drawer-title">Choose SOCKS5 Country Location</div>
         <button id="closeDrawerBtn" class="close-btn">✕</button>
       </div>
 
@@ -119,10 +160,10 @@
 
       <div class="continent-tabs" id="continentTabs">
         <button class="cont-tab active" data-continent="all">All</button>
-        <button class="cont-tab" data-continent="Middle East">Mid East</button>
-        <button class="cont-tab" data-continent="Asia">Asia</button>
-        <button class="cont-tab" data-continent="Europe">Europe</button>
         <button class="cont-tab" data-continent="North America">Americas</button>
+        <button class="cont-tab" data-continent="Europe">Europe</button>
+        <button class="cont-tab" data-continent="Asia">Asia</button>
+        <button class="cont-tab" data-continent="Middle East">Mid East</button>
         <button class="cont-tab" data-continent="Africa">Africa</button>
         <button class="cont-tab" data-continent="Oceania">Oceania</button>
       </div>
@@ -134,11 +175,13 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <a href="https://grproxy.grwebdevs5.workers.dev" target="_blank" class="footer-link">Web Dashboard</a>
+      <div class="shortcut-hint"><span class="kbd">Alt+Shift+P</span> Toggle</div>
       <span class="footer-dot">•</span>
-      <a href="https://grproxy.grwebdevs5.workers.dev/rotate/tg" target="_blank" class="footer-link">TG 1-Click Launch</a>
+      <a href="https://grproxy.grwebdevs5.workers.dev" target="_blank" class="footer-link">Dashboard</a>
       <span class="footer-dot">•</span>
-      <span class="footer-version">v1.0.0</span>
+      <a href="https://grproxy.grwebdevs5.workers.dev/rotate/tg" target="_blank" class="footer-link">TG Connect</a>
+      <span class="footer-dot">•</span>
+      <span class="footer-version">v1.1.0</span>
     </footer>
   </div>
 

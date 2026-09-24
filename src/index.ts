@@ -88,15 +88,25 @@ export default {
       );
     }
 
-    // 4. API: Telegram 100+ Active Verified Proxies Pool with full credentials
+    // 4. API: Telegram & Browser 100+ Active Verified Proxies Pool with full credentials
     if (url.pathname === '/api/proxies') {
       const pool = await getActivePool(env);
+      const protocol = url.searchParams.get('protocol');
+      const country = url.searchParams.get('country');
+      let filtered = pool;
+      if (protocol) {
+        filtered = filtered.filter((p) => p.protocol === protocol);
+      }
+      if (country) {
+        const cLower = country.toLowerCase();
+        filtered = filtered.filter((p) => p.country.toLowerCase().includes(cLower) || p.countryCode.toLowerCase() === cLower);
+      }
       return new Response(
         JSON.stringify(
           {
             success: true,
-            total: pool.length,
-            proxies: pool,
+            total: filtered.length,
+            proxies: filtered,
           },
           null,
           2
@@ -147,13 +157,15 @@ export default {
     }
 
     // 8. Dynamic Proxy Auto-Config (PAC) Script (/pac)
-    // Supports Smart Speed Booster Split-Routing or Global Routing
+    // Supports Smart Speed Booster Split-Routing or Global Routing with multi-tier SOCKS5 failover
     if (url.pathname === '/pac') {
       const modeParam = url.searchParams.get('mode');
       const mode = modeParam === 'all' ? 'all' : 'split';
-      // Prioritize SOCKS5 for browser PAC, fallback to any pinned
-      const pinned = await getOrRotatePinnedProxy(env, { protocol: 'socks5' });
-      const pacCode = generatePacScript(pinned, mode);
+      const [pool, pinned] = await Promise.all([
+        getActivePool(env),
+        getOrRotatePinnedProxy(env, { protocol: 'socks5' }),
+      ]);
+      const pacCode = generatePacScript(pinned, mode, pool);
       return new Response(pacCode, {
         headers: {
           'Content-Type': 'application/x-ns-proxy-autoconfig;charset=UTF-8',
