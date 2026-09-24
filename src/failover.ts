@@ -195,24 +195,8 @@ export function generatePacScript(
     return "DIRECT";
   }
 
-  // 2. High-Bandwidth Media, CDN & Regional Bypass (Guarantees full native 4K line speed)
-  if (shExpMatch(host, "*.googlevideo.com") ||
-      shExpMatch(host, "*.youtube.com") ||
-      shExpMatch(host, "*.ytimg.com") ||
-      shExpMatch(host, "*.netflix.com") ||
-      shExpMatch(host, "*.nflxvideo.net") ||
-      shExpMatch(host, "*.speedtest.net") ||
-      shExpMatch(host, "*.fast.com") ||
-      shExpMatch(host, "*.steamcontent.com") ||
-      shExpMatch(host, "*.steampowered.com") ||
-      shExpMatch(host, "*.cloudflare.com") ||
-      shExpMatch(host, "*.workers.dev") ||
-      shExpMatch(host, "*.pk") ||
-      shExpMatch(host, "*.gov.pk") ||
-      shExpMatch(host, "*.edu.pk") ||
-      shExpMatch(host, "*.com.pk") ||
-      shExpMatch(host, "*.net.pk") ||
-      shExpMatch(host, "*.org.pk")) {
+  // 2. High-Bandwidth Speed Tests, Media, CDN & Regional Bypass (Guarantees full native 4K line speed)
+  if (/(^|\.)(fast\.com|speedtest\.net|netflix\.com|nflxvideo\.net|nflxext\.com|nflximg\.net|youtube\.com|googlevideo\.com|ytimg\.com|steamcontent\.com|steampowered\.com|cloudflare\.com|workers\.dev|speed\.cloudflare\.com|pk)$/i.test(host)) {
     return "DIRECT";
   }
   `;
