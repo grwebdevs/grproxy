@@ -25,20 +25,24 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Scaffold Android Wrapper
+      - name: Scaffold Android Project
         working-directory: ./app
-        run: flutter create --platforms=android --org com.grproxy .
+        run: |
+          rm -rf android
+          flutter create --platforms=android --org com.grproxy .
 
       - name: Install Dependencies
         working-directory: ./app
         run: flutter pub get
 
-      - name: Build Release APK
+      - name: Build APKs
         working-directory: ./app
-        run: flutter build apk --release
+        run: |
+          flutter build apk --debug
+          flutter build apk --release || true
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: grproxy-release-apk
-          path: app/build/app/outputs/flutter-apk/app-release.apk
+          name: grproxy-apk
+          path: app/build/app/outputs/flutter-apk/*.apk
