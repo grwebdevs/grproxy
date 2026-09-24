@@ -42,18 +42,31 @@ export async function testProxySocket(
       await socket!.opened;
       const latency = Date.now() - start;
 
-      // Verify SOCKS5 protocol handshake
+      // Verify SOCKS5 protocol handshake & CONNECT tunnel capability
       if (protocol === 'socks5') {
         try {
           const writer = socket!.writable.getWriter();
+          // Step 1: SOCKS5 Greeting (No auth)
           await writer.write(new Uint8Array([0x05, 0x01, 0x00]));
-          writer.releaseLock();
 
           const reader = socket!.readable.getReader();
-          const { value, done } = await reader.read();
-          reader.releaseLock();
+          const greetingRes = await reader.read();
 
-          if (done || !value || value[0] !== 0x05) {
+          if (greetingRes.done || !greetingRes.value || greetingRes.value[0] !== 0x05 || greetingRes.value[1] !== 0x00) {
+            reader.releaseLock();
+            writer.releaseLock();
+            try { socket!.close(); } catch {}
+            return { ok: false, latency: 9999 };
+          }
+
+          // Step 2: SOCKS5 CONNECT probe to 1.1.1.1:443
+          // [0x05, 0x01 (CONNECT), 0x00 (RSV), 0x01 (IPv4: 1.1.1.1), 0x01, 0xbb (Port 443)]
+          await writer.write(new Uint8Array([0x05, 0x01, 0x00, 0x01, 1, 1, 1, 1, 0x01, 0xbb]));
+          const connectRes = await reader.read();
+          reader.releaseLock();
+          writer.releaseLock();
+
+          if (connectRes.done || !connectRes.value || connectRes.value[1] !== 0x00) {
             try { socket!.close(); } catch {}
             return { ok: false, latency: 9999 };
           }
