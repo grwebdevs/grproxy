@@ -1,0 +1,59 @@
+{
+  "name": "GRPROXY Mobile Client",
+  "version": "1.0.0",
+  "packageId": "com.grproxy.app",
+  "theme": {
+    "primaryColor": "#10b981",
+    "accentColor": "#06b6d4",
+    "backgroundColor": "#090d16",
+    "surfaceColor": "#111827",
+    "textColor": "#f3f4f6"
+  },
+  "backend": {
+    "baseUrl": "https://grproxy.grwebdevs5.workers.dev",
+    "endpoints": {
+      "nodes": "/api/nodes",
+      "proxies": "/api/proxies",
+      "subscription": "/sub?format=singbox",
+      "stats": "/api/stats"
+    },
+    "autoUpdateIntervalMinutes": 60
+  },
+  "defaultRouting": {
+    "mode": "per_app_split_tunnel",
+    "defaultBehavior": "direct",
+    "proxiedPackages": [
+      "org.telegram.messenger",
+      "org.telegram.messenger.web",
+      "org.telegram.plus",
+      "org.telegram.BETA",
+      "org.thunderdog.challegram",
+      "nekox.messenger",
+      "com.discord",
+      "com.tencent.ig",
+      "com.pubg.krmobile",
+      "com.dts.freefireth"
+    ],
+    "directBypassPackages": [
+      "com.techlogix.mobilinkcustomer",
+      "pk.easypaisa.app",
+      "com.hbl.mobilebanking",
+      "com.divergentsoft.meezanbank",
+      "com.mcb.mobilebanking",
+      "com.nayapay.app",
+      "com.sadapay.app",
+      "com.whatsapp",
+      "com.google.android.youtube",
+      "com.google.android.apps.maps"
+    ]
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "cloudflare-doh",
+        "address": "https://1.1.1.1/dns-query",
+        "detour": "direct"
+      }
+    ]
+  }
+}

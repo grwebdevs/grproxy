@@ -1,0 +1,17 @@
+{
+  "name": "grproxy",
+  "version": "1.0.0",
+  "description": "GRPROXY - High-Speed Telegram & Multi-Country Smart Proxy Engine on Cloudflare Workers",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^3.114.17"
+  }
+}

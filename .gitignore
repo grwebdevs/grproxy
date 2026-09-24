@@ -1,0 +1,11 @@
+node_modules/
+.wrangler/
+.env
+.DS_Store
+Thumbs.db
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+app/.dart_tool/
+app/build/
