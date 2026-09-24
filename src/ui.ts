@@ -243,7 +243,7 @@ export function renderDashboardHtml(
           <span>🧩 Chrome Extension</span>
         </a>
         <a href="#tabApk" onclick="switchTab('apk')" class="hidden sm:flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition">
-          <span>📱 Android APK</span>
+          <span>📱 Mobile Apps</span>
         </a>
         <button id="scrapeBtn" onclick="triggerScrape()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold py-1.5 px-3 rounded-xl transition flex items-center space-x-1.5">
           <span id="scrapeSpinner" class="hidden animate-spin">⚡</span>
@@ -306,7 +306,7 @@ export function renderDashboardHtml(
         <span>🧩 Chrome Extension</span>
       </button>
       <button onclick="switchTab('apk')" id="tabBtnApk" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2 shrink-0">
-        <span>📱 Android APK</span>
+        <span>📱 Mobile Apps (Android & iOS)</span>
       </button>
       <button onclick="switchTab('failover')" id="tabBtnFailover" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center space-x-2 shrink-0">
         <span>🔄 Auto-Failover Route</span>
@@ -514,71 +514,269 @@ export function renderDashboardHtml(
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 4: ANDROID APK DOWNLOAD                -->
+    <!-- TAB 4: MOBILE APPS & SETUP HUB             -->
     <!-- ========================================== -->
     <div id="tabApk" class="space-y-6 hidden">
       <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 border-b border-slate-800/80 pb-6">
           <div class="space-y-1.5">
             <div class="flex items-center space-x-2">
               <span class="text-3xl">📱</span>
-              <h3 class="text-xl font-bold text-white font-mono">GRPROXY Android Mobile Client</h3>
+              <h3 class="text-xl font-bold text-white font-mono">GRPROXY Mobile Apps &amp; Setup Hub</h3>
             </div>
             <p class="text-xs text-slate-400 max-w-2xl leading-relaxed">
-              Native Android application featuring Per-App Split Tunneling, Cloudflare edge node synchronization, and zero-speed-loss bypass for Pakistani banking & media apps.
+              Connect to 100+ Cloudflare Anycast edge locations on your phone with full Gigabit line speed, or connect Telegram directly in 1 tap without installing any extra apps.
             </p>
           </div>
-          <div class="flex items-center space-x-3 shrink-0">
-            <a href="https://github.com/grwebdevs/grproxy/releases" target="_blank" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center space-x-1.5 shadow-lg shadow-brand-500/20">
-              <span>📥 Download APK (Releases)</span>
-            </a>
-            <a href="https://github.com/grwebdevs/grproxy/actions" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold py-2.5 px-3 rounded-xl transition">
-              <span>Build Artifacts</span>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <button onclick="copySubscription()" class="bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center space-x-1.5 shadow-lg shadow-brand-500/20">
+              <span>📋 Copy 100+ Country Sub</span>
+            </button>
+            <a href="/tg/auto" class="bg-slate-800 hover:bg-slate-700 text-brand-400 border border-brand-500/30 text-xs font-bold py-2.5 px-3.5 rounded-xl transition flex items-center space-x-1.5">
+              <span>✈️ 1-Tap Telegram Only</span>
             </a>
           </div>
         </div>
 
-        <!-- Android App Highlights -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-2">
-            <div class="text-2xl">⚡</div>
-            <h4 class="text-sm font-bold text-white">Per-App Split Tunneling</h4>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Only checked apps (Telegram, Discord) route through GRPROXY. Banking apps (JazzCash, Easypaisa, HBL) and YouTube run at full native 4G/5G speeds without VPN lag.
+        <!-- Zero-App Direct Telegram Section -->
+        <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900/80 to-slate-900/90 p-5 rounded-2xl border border-brand-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-base font-bold text-white flex items-center space-x-1.5">
+                <span>✈️ Option A: No Extra App Needed (Telegram Only)</span>
+              </span>
+              <span class="bg-brand-500/10 text-brand-400 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/20 font-mono">Instant 1-Tap</span>
+            </div>
+            <p class="text-xs text-slate-400 max-w-xl">
+              If you only want Telegram unblocked on your phone, click below to launch Telegram and auto-enable the verified live proxy immediately!
             </p>
           </div>
-
-          <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-2">
-            <div class="text-2xl">🌐</div>
-            <h4 class="text-sm font-bold text-white">Live Cloudflare Sync</h4>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Automatically queries <code class="text-cyan-300 font-mono">/api/nodes</code> on launch to grab the freshest 100+ Anycast edge locations and lowest ping routes.
-            </p>
-          </div>
-
-          <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-2">
-            <div class="text-2xl">🛡️</div>
-            <h4 class="text-sm font-bold text-white">1-Tap Connection</h4>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Large interactive power button activates protection in 200 milliseconds with automatic reconnect on network handovers (Wi-Fi &lt;&gt; Mobile Data).
-            </p>
+          <div class="flex items-center space-x-2 shrink-0 w-full sm:w-auto">
+            <a href="/tg/auto" class="flex-1 sm:flex-initial bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs py-2.5 px-4 rounded-xl transition text-center shadow-lg shadow-brand-500/20">
+              ✈️ 1-Tap Connect Telegram
+            </a>
+            <a href="/tg/auto?format=web" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold py-2.5 px-3 rounded-xl transition">
+              🌐 Web Link
+            </a>
           </div>
         </div>
 
-        <!-- QR Scan to Download on Phone -->
-        <div class="bg-slate-950/90 p-6 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div class="space-y-2">
-            <h4 class="text-sm font-bold text-white uppercase tracking-wider">Install on Android in 2 Minutes:</h4>
-            <ol class="space-y-2 text-xs text-slate-300 list-decimal list-inside leading-relaxed">
-              <li>Scan the QR code with your mobile camera or open <a href="https://github.com/grwebdevs/grproxy/releases" target="_blank" class="text-brand-400 underline">GitHub Releases</a> on your phone.</li>
-              <li>Tap <code class="text-cyan-300 font-mono">app-debug.apk</code> or <code class="text-cyan-300 font-mono">app-release.apk</code> to download.</li>
-              <li>Open the downloaded APK and tap <strong>Install</strong> (allow "Install Unknown Apps" if prompted).</li>
-              <li>Open GRPROXY on your phone and tap <strong>Connect</strong>!</li>
-            </ol>
+        <!-- 3 Recommended Mobile VPN Apps -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+              <span>🛡️ Option B: Recommended Full Mobile Apps (100+ Cloudflare Countries)</span>
+            </h4>
+            <span class="text-xs text-slate-500 font-mono">Choose your preferred client</span>
           </div>
-          <div class="flex flex-col items-center p-3 bg-white rounded-2xl shadow-xl shrink-0">
-            <div id="apkQrcode"></div>
-            <span class="text-[10px] text-black font-bold font-mono mt-1">Scan to Download APK</span>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- App 1: v2rayNG (Android) -->
+            <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 hover:border-brand-500/40 transition space-y-4 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-lg">🤖</div>
+                    <div>
+                      <h5 class="text-sm font-bold text-white">v2rayNG</h5>
+                      <span class="text-[10px] text-brand-400 font-mono font-bold">Best for Android (Recommended)</span>
+                    </div>
+                  </div>
+                  <span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20 font-mono">⭐ 4.8</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  The most stable, battle-tested Android client. Features Per-App Split Tunneling: keep JazzCash, Easypaisa, and YouTube direct while unblocking Telegram &amp; Discord.
+                </p>
+              </div>
+
+              <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                <a href="https://play.google.com/store/apps/details?id=com.v2ray.ang" target="_blank" class="w-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                  <span>🟢 Google Play Store</span>
+                </a>
+                <div class="grid grid-cols-2 gap-2">
+                  <a href="https://github.com/2dust/v2rayNG/releases" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-semibold py-1.5 px-2 rounded-xl text-[11px] text-center transition">
+                    📥 Direct APK
+                  </a>
+                  <a href="https://f-droid.org/packages/com.v2ray.ang/" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-semibold py-1.5 px-2 rounded-xl text-[11px] text-center transition">
+                    🛡️ F-Droid
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- App 2: Sing-Box (Android & iOS) -->
+            <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/40 transition space-y-4 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-lg">⚡</div>
+                    <div>
+                      <h5 class="text-sm font-bold text-white">Sing-Box</h5>
+                      <span class="text-[10px] text-cyan-400 font-mono font-bold">Android &amp; iPhone (iOS)</span>
+                    </div>
+                  </div>
+                  <span class="bg-cyan-500/10 text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded border border-cyan-500/20 font-mono">Next-Gen</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Ultra-lightweight universal proxy platform. Native support on Apple App Store for iPhones/iPads as well as Android with intelligent auto-urltest failover.
+                </p>
+              </div>
+
+              <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                <a href="https://apps.apple.com/us/app/sing-box/id6451272673" target="_blank" class="w-full bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                  <span>🍏 Apple App Store (iOS)</span>
+                </a>
+                <div class="grid grid-cols-2 gap-2">
+                  <a href="https://play.google.com/store/apps/details?id=io.nekohasekai.sfa" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-semibold py-1.5 px-2 rounded-xl text-[11px] text-center transition">
+                    🟢 Play Store
+                  </a>
+                  <a href="https://github.com/SagerNet/sing-box/releases" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-semibold py-1.5 px-2 rounded-xl text-[11px] text-center transition">
+                    📥 GitHub APK
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- App 3: NekoBox (Android) -->
+            <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 hover:border-purple-500/40 transition space-y-4 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-lg">🐱</div>
+                    <div>
+                      <h5 class="text-sm font-bold text-white">NekoBox</h5>
+                      <span class="text-[10px] text-purple-400 font-mono font-bold">Android Power Users</span>
+                    </div>
+                  </div>
+                  <span class="bg-purple-500/10 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded border border-purple-500/20 font-mono">Advanced</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                  Feature-rich Sing-Box / Clash frontend for Android with powerful routing rule sets, granular protocol toggles, and live speed graphing.
+                </p>
+              </div>
+
+              <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                <a href="https://play.google.com/store/apps/details?id=moe.nb.v2ray" target="_blank" class="w-full bg-purple-500/15 hover:bg-purple-500/25 text-purple-400 border border-purple-500/30 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                  <span>🟢 Google Play Store</span>
+                </a>
+                <div class="grid grid-cols-2 gap-2">
+                  <a href="https://github.com/MatsuriDayo/NekoBoxForAndroid/releases" target="_blank" class="col-span-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-semibold py-1.5 px-2 rounded-xl text-[11px] text-center transition">
+                    📥 Download APK from GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Universal Subscription Import Box -->
+        <div class="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+                <span>🔗 Universal 100+ Country Subscription URL</span>
+                <span class="bg-brand-500/10 text-brand-400 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/20 font-mono">Auto-Updating</span>
+              </h4>
+              <p class="text-xs text-slate-400 mt-0.5">
+                Paste this single link into v2rayNG or Sing-Box to load all 100+ Cloudflare edge countries at once.
+              </p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="copy-btn bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs py-2 px-3.5 rounded-xl transition shadow" data-copy="https://${workerHost}/sub">
+                📋 Copy Link
+              </button>
+              <a href="sing-box://import-remote-profile?url=${encodeURIComponent('https://' + workerHost + '/sub?format=singbox')}#GRPROXY-Global-Edge" class="bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 font-bold text-xs py-2 px-3.5 rounded-xl transition">
+                ⚡ 1-Tap Sing-Box Import
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 font-mono text-xs text-cyan-300 break-all select-all flex items-center justify-between gap-2">
+            <span>https://${workerHost}/sub</span>
+            <button class="copy-btn text-brand-400 hover:text-brand-300 text-[11px] font-bold uppercase shrink-0" data-copy="https://${workerHost}/sub">copy</button>
+          </div>
+        </div>
+
+        <!-- Dual QR Codes Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- QR 1: Subscription Scan -->
+          <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 flex items-center space-x-5">
+            <div class="p-2.5 bg-white rounded-xl shadow-lg shrink-0">
+              <div id="subQrcode"></div>
+            </div>
+            <div class="space-y-1.5">
+              <span class="bg-brand-500/10 text-brand-400 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-500/20 font-mono">Scan in v2rayNG</span>
+              <h5 class="text-sm font-bold text-white">Import 100+ Countries</h5>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Open v2rayNG on your phone ➔ Tap <strong>+</strong> ➔ Tap <strong>Scan QR code</strong> ➔ Scan this to load all 100+ edge locations!
+              </p>
+            </div>
+          </div>
+
+          <!-- QR 2: APK Direct Download -->
+          <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 flex items-center space-x-5">
+            <div class="p-2.5 bg-white rounded-xl shadow-lg shrink-0">
+              <div id="apkQrcode"></div>
+            </div>
+            <div class="space-y-1.5">
+              <span class="bg-cyan-500/10 text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded border border-cyan-500/20 font-mono">Mobile Camera</span>
+              <h5 class="text-sm font-bold text-white">Download APK Directly</h5>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Scan with your phone's camera to open the direct APK download page on GitHub without typing any URLs.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 60-Second Step-by-Step Setup Guide -->
+        <div class="bg-slate-950/90 p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+            <span>📖 60-Second Setup Guide (v2rayNG for Android):</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-1.5">
+              <div class="w-6 h-6 rounded-lg bg-brand-500 text-slate-950 font-bold flex items-center justify-center font-mono">1</div>
+              <h6 class="font-bold text-white">Install App</h6>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Install <strong>v2rayNG</strong> from Google Play Store or GitHub APK using the buttons above.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-1.5">
+              <div class="w-6 h-6 rounded-lg bg-cyan-500 text-slate-950 font-bold flex items-center justify-center font-mono">2</div>
+              <h6 class="font-bold text-white">Copy Link</h6>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Tap the green <strong>"📋 Copy Link"</strong> button above to copy the universal subscription URL.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-1.5">
+              <div class="w-6 h-6 rounded-lg bg-purple-500 text-white font-bold flex items-center justify-center font-mono">3</div>
+              <h6 class="font-bold text-white">Add Subscription</h6>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                In v2rayNG: Tap <strong>☰ (Menu)</strong> ➔ <strong>Subscription group</strong> ➔ Tap <strong>+</strong> ➔ Paste URL ➔ Save.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-1.5">
+              <div class="w-6 h-6 rounded-lg bg-emerald-400 text-slate-950 font-bold flex items-center justify-center font-mono">4</div>
+              <h6 class="font-bold text-white">Update &amp; Connect</h6>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                On home screen, tap <strong>⋮ (3 dots)</strong> ➔ <strong>Update subscription</strong>. All 100+ nodes appear! Tap any country and press <strong>V</strong> to connect!
+              </p>
+            </div>
+          </div>
+
+          <!-- Split Tunneling Tip -->
+          <div class="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-xl text-xs text-emerald-300 flex items-start space-x-2.5">
+            <span class="text-base shrink-0">💡</span>
+            <div>
+              <strong class="text-white">Zero-Slowdown Pro Tip (Keep Banking &amp; YouTube Direct):</strong>
+              <p class="text-emerald-400/90 text-[11px] mt-0.5 leading-relaxed">
+                In v2rayNG Settings ➔ Turn ON <strong>"Per-app proxy"</strong> ➔ Check only Telegram &amp; Discord. Your local internet, YouTube, and banking apps (JazzCash, Easypaisa, HBL) will run directly at 100% full native line speed!
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -1221,10 +1419,21 @@ export function renderDashboardHtml(
       });
     }
 
-    // Generate QR code for APK download
+    // Generate QR codes for mobile subscription & APK download
+    if (document.getElementById('subQrcode')) {
+      new QRCode(document.getElementById('subQrcode'), {
+        text: 'https://' + window.location.host + '/sub',
+        width: 140,
+        height: 140,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
     if (document.getElementById('apkQrcode')) {
       new QRCode(document.getElementById('apkQrcode'), {
-        text: 'https://github.com/grwebdevs/grproxy/releases',
+        text: 'https://github.com/2dust/v2rayNG/releases',
         width: 140,
         height: 140,
         colorDark: "#000000",
