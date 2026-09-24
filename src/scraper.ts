@@ -2,17 +2,14 @@ import { ProxyItem } from './types';
 
 // Curated high-yield public sources for MTProto and SOCKS5 proxies
 export const PROXY_SOURCES = [
-  // MTProto specific sources
-  { url: 'https://raw.githubusercontent.com/soroushmirzaei/telegram-proxies-collector/main/proxies', type: 'mtproto' },
-  { url: 'https://raw.githubusercontent.com/yebekhe/TelegramV2rayCollector/main/sub/normal/mtproto', type: 'mtproto' },
-  { url: 'https://raw.githubusercontent.com/EbrahimAlinia/Proxy-Telegram/master/proxies.txt', type: 'mtproto' },
-  { url: 'https://raw.githubusercontent.com/Bardiafa/Proxy-Telegram/main/proxies.txt', type: 'mtproto' },
-  { url: 'https://raw.githubusercontent.com/mahsanet/proxy-collector/main/mtproto.txt', type: 'mtproto' },
+  // MTProto specific live active sources
+  { url: 'https://raw.githubusercontent.com/Argh94/Proxy-List/master/MTProto.txt', type: 'mtproto' },
+  { url: 'https://raw.githubusercontent.com/ALIILAPRO/MTProtoProxy/main/mtproto.txt', type: 'mtproto' },
 
   // SOCKS5 specific sources
   { url: 'https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt', type: 'socks5' },
   { url: 'https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/socks5.txt', type: 'socks5' },
-  { url: 'https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt', type: 'socks5' },
+  { url: 'https://raw.githubusercontent.com/prxchk/proxy-list/main/socks5.txt', type: 'socks5' },
 ];
 
 /**
@@ -52,18 +49,33 @@ export function parseMtprotoLink(line: string, sourceName = 'github'): ProxyItem
     const secret = parsed.searchParams.get('secret');
 
     if (!server || !portStr || !secret) return null;
+    const cleanServer = server.trim().replace(/\.+$/, '');
+    if (!cleanServer) return null;
+    const cleanSecret = secret.trim();
+    if (!cleanSecret) return null;
+
     const port = parseInt(portStr, 10);
     if (isNaN(port) || port <= 0 || port > 65535) return null;
 
-    const geo = getCountryInfo(server);
-    const id = `mtproto_${server}_${port}`;
+    // Reject synthetic placeholder IPs or test secrets
+    if (
+      cleanServer.startsWith('149.154.') ||
+      cleanServer.startsWith('91.108.') ||
+      cleanSecret.startsWith('ee00112233445566778899aabbccdd') ||
+      cleanSecret.startsWith('ee00000000000000000000000000000000')
+    ) {
+      return null;
+    }
+
+    const geo = getCountryInfo(cleanServer);
+    const id = `mtproto_${cleanServer}_${port}`;
 
     return {
       id,
       protocol: 'mtproto',
-      ip: server,
+      ip: cleanServer,
       port,
-      secret,
+      secret: cleanSecret,
       country: geo.country,
       countryCode: geo.code,
       flag: geo.flag,
@@ -71,7 +83,7 @@ export function parseMtprotoLink(line: string, sourceName = 'github'): ProxyItem
       isAlive: true,
       lastChecked: Date.now(),
       source: sourceName,
-      tgLink: `tg://proxy?server=${encodeURIComponent(server)}&port=${port}&secret=${encodeURIComponent(secret)}`,
+      tgLink: `tg://proxy?server=${encodeURIComponent(cleanServer)}&port=${port}&secret=${encodeURIComponent(cleanSecret)}`,
     };
   } catch {
     return null;

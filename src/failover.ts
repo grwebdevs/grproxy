@@ -20,7 +20,17 @@ export async function getOrRotatePinnedProxy(
   try {
     const raw = await env.GRPROXY_KV.get(kvKey, 'json');
     if (raw && typeof raw === 'object' && (raw as FailoverState).pinnedProxyId) {
-      existingState = raw as FailoverState;
+      const candidateState = raw as FailoverState;
+      // Invalidate synthetic placeholder proxies from legacy cache
+      if (
+        candidateState.ip &&
+        !candidateState.ip.startsWith('149.154.') &&
+        !candidateState.ip.startsWith('91.108.') &&
+        !(candidateState.secret && candidateState.secret.startsWith('ee00112233445566778899aabbccdd')) &&
+        !(candidateState.secret && candidateState.secret.startsWith('ee00000000000000000000000000000000'))
+      ) {
+        existingState = candidateState;
+      }
     }
   } catch (err) {
     console.warn('Failed to load pinned proxy from KV:', err);

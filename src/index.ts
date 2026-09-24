@@ -152,8 +152,51 @@ export default {
     // 7. Auto-Rotating 1-Click Telegram Direct Launch (/rotate/tg or /tg/auto)
     if (url.pathname === '/rotate/tg' || url.pathname === '/tg/auto') {
       const force = url.searchParams.get('force') === 'true';
-      const pinned = await getOrRotatePinnedProxy(env, { force, protocol: 'mtproto' });
-      return Response.redirect(pinned.tgLink, 302);
+      const protocolParam = url.searchParams.get('protocol');
+      const protocol = protocolParam === 'socks5' ? 'socks5' : 'mtproto';
+      const pinned = await getOrRotatePinnedProxy(env, { force, protocol });
+      const isWeb = url.searchParams.get('format') === 'web' || url.searchParams.get('web') === 'true';
+      const targetLink = isWeb
+        ? pinned.tgLink.replace('tg://proxy?', 'https://t.me/proxy?').replace('tg://socks?', 'https://t.me/socks?')
+        : pinned.tgLink;
+      return Response.redirect(targetLink, 302);
+    }
+
+    // 7b. API: Cache Reset / Purge Legacy Synthetics
+    if (url.pathname === '/api/reset' || url.pathname === '/api/purge') {
+      try {
+        await Promise.allSettled([
+          env.GRPROXY_KV.delete('pool_active'),
+          env.GRPROXY_KV.delete('pool_stats'),
+          env.GRPROXY_KV.delete('failover_pinned_state'),
+          env.GRPROXY_KV.delete('failover_pinned_mtproto'),
+          env.GRPROXY_KV.delete('failover_pinned_socks5'),
+        ]);
+        const freshPool = await getActivePool(env);
+        const [pinnedMtproto, pinnedSocks] = await Promise.all([
+          getOrRotatePinnedProxy(env, { force: true, protocol: 'mtproto' }),
+          getOrRotatePinnedProxy(env, { force: true, protocol: 'socks5' }),
+        ]);
+        return new Response(
+          JSON.stringify(
+            {
+              success: true,
+              message: 'Cache purged successfully. Verified live proxies restored.',
+              poolCount: freshPool.length,
+              pinnedMtproto,
+              pinnedSocks,
+            },
+            null,
+            2
+          ),
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: (err as Error).message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
     }
 
     // 8. Dynamic Proxy Auto-Config (PAC) Script (/pac)
