@@ -25,6 +25,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses || true
+
       - name: Scaffold Android Project
         working-directory: ./app
         run: |
@@ -38,8 +41,18 @@ jobs:
       - name: Build APKs
         working-directory: ./app
         run: |
-          flutter build apk --debug
-          flutter build apk --release || true
+          flutter build apk --debug > build.log 2>&1 || {
+            echo "=== BUILD LOG ERROR SUMMARY ==="
+            tail -n 100 build.log
+            exit 1
+          }
+
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-failure-log
+          path: app/build.log
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
