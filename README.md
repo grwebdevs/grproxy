@@ -1,68 +1,91 @@
-# GRPROXY — Cloudflare Anti-Censorship & Telegram Proxy Engine
+# GRPROXY — Cloudflare Anti-Censorship, Telegram & Edge Proxy Hub
 
-> **Live Deployment URL**: [https://grproxy.grwebdevs5.workers.dev](https://grproxy.grwebdevs5.workers.dev)
+> **Live Deployment URL**: [https://grproxy.grwebdevs5.workers.dev](https://grproxy.grwebdevs5.workers.dev)  
+> **Auto-Rotating Telegram URL**: [https://grproxy.grwebdevs5.workers.dev/rotate/tg](https://grproxy.grwebdevs5.workers.dev/rotate/tg)  
+> **Universal Browser PAC URL**: [https://grproxy.grwebdevs5.workers.dev/pac](https://grproxy.grwebdevs5.workers.dev/pac)  
+> **Sing-Box Universal Sub**: [https://grproxy.grwebdevs5.workers.dev/sub](https://grproxy.grwebdevs5.workers.dev/sub)
 
-GRPROXY is a high-speed, multi-country anti-censorship and smart proxy engine designed to bypass Telegram blocking, ISP throttling, and regional firewalls (such as in Pakistan) **without slowing down the rest of your device**.
+GRPROXY is a high-speed, multi-country anti-censorship and smart proxy engine designed to bypass Telegram blocking, ISP throttling, and regional firewalls **without slowing down the rest of your device**.
 
 ---
 
 ## 🌟 Core Features
 
-1. **Active Telegram Proxy Pool (130+ Verified Proxies)**:
+1. **Active Telegram Proxy Pool with Full Credentials (130+ Verified Proxies)**:
    * Constantly scrapes MTProto (with Fake-TLS) and SOCKS5 proxies from global feeds.
+   * Prominently displays all connection credentials on each card: Host / IP, Port, Protocol, Secret (with 1-click **Copy Secret**), and Username/Password.
+   * Interactive **Credential & Config Inspector Modal** provides ready-to-use configs for Telegram Desktop, Mobile, Firefox, cURL, and Python.
    * Uses raw Cloudflare Workers TCP sockets (`cloudflare:sockets`) to test real handshakes and measure round-trip ping in milliseconds.
-   * Automatically drops dead/blocked proxies and keeps the top low-latency nodes in Cloudflare KV (`GRPROXY_KV`).
-2. **Dedicated Cloudflare Anycast Edge Nodes**:
-   * Regional CDN routing: 🇦🇪 UAE (Dubai, ~35ms), 🇸🇬 Singapore (~62ms), 🇩🇪 Germany (~85ms), 🇬🇧 UK (~98ms), 🇺🇸 USA (~145ms), 🇳🇱 Netherlands (~89ms).
-   * VLESS over WebSocket with TLS 1.3 encryption on Cloudflare's edge.
-3. **Modern Mobile & Desktop Admin Dashboard**:
-   * Dark-mode interface with live counters, latency badges, and country flags.
-   * **1-Tap Add to Telegram** (`tg://proxy?...`): Click or tap once on your phone or PC to import directly into Telegram.
-   * **QR Codes**: Scan directly with your mobile camera.
-   * Live scrape and re-test triggers.
-4. **Universal API & Subscription Endpoints**:
-   * `GET /api/nodes` — JSON of high-speed country nodes for the GRPROXY Android app.
+2. **Auto-Rotating Smart Failover Engine (Zero Churn)**:
+   * Stays pinned to the fastest responding proxy as long as it works reliably.
+   * Automatically hot-swaps to the next healthy proxy if the current node lags or fails, eliminating dropped voice calls and reconnect loops.
+   * `GET /rotate/tg` — 1-click auto-redirect to launch Telegram with the current healthy pinned node.
+   * `GET /pac` — Universal Proxy Auto-Config script for system-wide zero-slowdown browsing.
+3. **100+ Countries Cloudflare Anycast Edge Network (129 Locations)**:
+   * Covers 100+ countries across Middle East, Asia, Europe, Americas, Africa, and Oceania.
+   * Real Cloudflare Anycast IPs with TLS 1.3 encryption and low latency (~18ms - 85ms).
+   * VLESS over WebSocket relay via Cloudflare Workers TCP sockets.
+4. **GRPROXY Chrome Extension (Manifest V3)**:
+   * Located in `grproxy/extension/`.
+   * **Smart Speed Booster (Split-Routing)**: YouTube 4K, Netflix, Twitch, downloads, and local websites run **DIRECT at 100% native fiber speed**, while only blocked websites (Telegram Web, Discord, X, Reddit) are accelerated over the Cloudflare edge.
+   * Country selector with 100+ locations, live ping indicators, and 1-click connect/disconnect.
+5. **Universal API & Subscription Endpoints**:
+   * `GET /api/nodes` — JSON of 100+ high-speed country nodes.
    * `GET /api/proxies` — JSON of 130+ active MTProto/SOCKS5 proxies with credentials and ping.
-   * `GET /api/stats` — Real-time health metrics.
-   * `POST /api/scrape` — Triggers an on-demand scraper and TCP socket testing cycle.
-   * `GET /sub` — Universal Base64 subscription link.
-   * `GET /sub?format=singbox` — Native Sing-Box / Hiddify outbound configuration.
+   * `GET /api/rotate` — Live status and failover control (`?force=true` triggers manual hot-swap).
+   * `GET /rotate/tg` — Instant 302 redirect into Telegram with current pinned proxy.
+   * `GET /pac` — Dynamic Proxy Auto-Config script.
+   * `GET /sub` — Universal Base64 and Sing-Box auto-failover outbounds subscription.
 
 ---
 
-## 📱 How to Use in Pakistan Without Slowing Down Your Phone
+## 📱 How to Use (Zero Phone Slowdown)
 
-### Method 1: Direct in Telegram (Zero Apps, Native Telegram Settings)
-1. Open [https://grproxy.grwebdevs5.workers.dev](https://grproxy.grwebdevs5.workers.dev) on your phone.
-2. Tap the **"1-Tap Add to TG"** button on 3 to 5 top proxies (e.g. 🇦🇪 UAE or 🇩🇪 Germany with `< 100ms`).
-3. Telegram will immediately pop up: Tap **"Enable Proxy"** and save it.
-4. In Telegram, go to **Settings > Data and Storage > Proxy Settings**.
-5. Turn on **"Auto-switch proxy"**.
-6. **Result**: Telegram will stay connected forever. If one proxy ever lags, Telegram automatically hops to the next one. Your mobile banking apps (JazzCash, Easypaisa, HBL) and YouTube never touch any proxy and run at native 4G/5G speeds!
+### Method 1: 1-Click Auto-Rotating Telegram (Mobile & PC)
+1. Tap or click [https://grproxy.grwebdevs5.workers.dev/rotate/tg](https://grproxy.grwebdevs5.workers.dev/rotate/tg).
+2. Telegram opens automatically and asks to save the proxy. Tap **Enable Proxy**.
+3. In Telegram, go to **Settings > Data and Storage > Proxy Settings** and turn on **Auto-switch proxy**.
+4. Telegram stays connected forever. All other apps on your phone run at full native 4G/5G line speed.
 
-### Method 2: Per-App Split Tunnel (Maximum Speed for Calls & Video)
-1. In your Android app (Sing-Box, NekoBox, or the upcoming GRPROXY App), add the subscription:
-   `https://grproxy.grwebdevs5.workers.dev/sub`
-2. Enable **Per-App Proxy** (Split Tunneling) and select **Telegram** (and any games if desired).
-3. Connect to the 🇦🇪 UAE (Dubai) or 🇩🇪 Germany node.
-4. Enjoy unlimited 4K video downloads and voice/video calls at full fiber line speed.
+### Method 2: GRPROXY Chrome Extension
+1. In Google Chrome, Brave, or Edge, navigate to `chrome://extensions`.
+2. Turn ON **Developer mode** in the top-right.
+3. Click **Load unpacked** and select `d:\GR WEB DEVS\Cloudflare workers TOOLS BUILDS\New ideas\grproxy\extension`.
+4. Click the GRPROXY icon in the browser toolbar, select **Speed Booster Mode**, pick your country, and click **CONNECT**!
+
+### Method 3: Windows / Mac Automatic Proxy (PAC Script)
+1. Open Windows **Settings > Network & internet > Proxy**.
+2. Turn ON **Use setup script** and enter:
+   `https://grproxy.grwebdevs5.workers.dev/pac`
+3. Click **Save**. Your browser will now automatically route blocked services through GRPROXY while streaming YouTube 4K directly at native speed!
 
 ---
 
 ## 🛠️ Project Structure
 
 ```
-d:\GR WEB DEVS\Cloudflare workers TOOLS BUILDS\New ideas\grproxy/
-├── package.json          # Isolated project dependencies
+grproxy/
+├── package.json          # Dependencies & build scripts
 ├── tsconfig.json         # TypeScript configuration
 ├── wrangler.jsonc        # Cloudflare Worker configuration & KV bindings
-├── README.md             # Documentation
-└── src/
-    ├── index.ts          # Main router, API handlers, and lazy auto-refresh
-    ├── types.ts          # TypeScript interfaces (ProxyItem, EdgeNode, Stats)
-    ├── scraper.ts        # Multi-source scraper (MTProto & SOCKS5)
-    ├── validator.ts      # Cloudflare raw TCP socket health-checker & pruner
-    ├── edgeNodes.ts      # High-speed regional VLESS edge router & WebSocket tunnel
-    ├── storage.ts        # Cloudflare KV persistence & initial seeds
-    └── ui.ts             # Modern responsive Admin Dashboard HTML
+├── implementation_plan.md# Architecture & design document
+├── walkthrough.md        # User verification & API guide
+├── README.md             # Project documentation
+├── src/
+│   ├── index.ts          # Main router & auto-failover API endpoints
+│   ├── types.ts          # TypeScript interfaces (ProxyItem, EdgeNode, FailoverState)
+│   ├── failover.ts       # Intelligent auto-failover engine & dynamic PAC generator
+│   ├── edgeNodes.ts      # 100+ Cloudflare Anycast edge nodes & VLESS WebSocket tunnel
+│   ├── scraper.ts        # Multi-source scraper (MTProto & SOCKS5)
+│   ├── validator.ts      # Cloudflare raw TCP socket health-checker & pruner
+│   ├── storage.ts        # Cloudflare KV persistence & initial seeds
+│   └── ui.ts             # Redesigned cyberpunk dashboard HTML with visible credentials
+└── extension/            # Manifest V3 Chrome Extension
+    ├── manifest.json     # Manifest V3 configuration
+    ├── background.js     # Service worker managing chrome.proxy & PAC routing
+    ├── popup.html        # Modern extension popup interface
+    ├── popup.css         # Cyberpunk emerald styling
+    ├── popup.js          # 100+ countries, search, continent filters, and live ping
+    ├── icons/            # 16, 48, 128 px PNG icons
+    └── README.md         # Extension setup guide
 ```

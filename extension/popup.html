@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRPROXY — High-Speed Cloudflare Proxy</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-group">
+        <div class="logo-icon">GR</div>
+        <div>
+          <div class="logo-title">GRPROXY</div>
+          <div class="logo-subtitle">Cloudflare Anycast Edge</div>
+        </div>
+      </div>
+      <div id="statusBadge" class="status-badge disconnected">
+        <span class="status-dot"></span>
+        <span id="statusText">DISCONNECTED</span>
+      </div>
+    </header>
+
+    <!-- Master Connect Button -->
+    <div class="connect-section">
+      <button id="mainToggleBtn" class="main-toggle-btn disconnected">
+        <div class="power-ring"></div>
+        <div class="power-icon">⚡</div>
+        <span id="btnLabel" class="btn-label">CONNECT</span>
+      </button>
+      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown Proxy</div>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+      <button id="modeBoosterBtn" class="mode-btn active" data-mode="booster">
+        <span class="mode-icon">⚡</span>
+        <div class="mode-info">
+          <div class="mode-title">Speed Booster</div>
+          <div class="mode-desc">Split-routing • 100% Native 4K speed</div>
+        </div>
+      </button>
+      <button id="modeGlobalBtn" class="mode-btn" data-mode="global">
+        <span class="mode-icon">🌐</span>
+        <div class="mode-info">
+          <div class="mode-title">Global Shield</div>
+          <div class="mode-desc">Proxy all browser tabs</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Active Country Card -->
+    <div class="country-card">
+      <div class="country-card-header">
+        <span class="label-muted">SELECTED EDGE LOCATION</span>
+        <button id="toggleCountryDrawerBtn" class="change-btn">Change (100+) ▾</button>
+      </div>
+      <div class="country-preview" id="openDrawerTrigger">
+        <div class="country-info">
+          <span id="currentFlag" class="country-flag">🇦🇪</span>
+          <div>
+            <div id="currentCountryName" class="country-name">United Arab Emirates</div>
+            <div id="currentCity" class="country-city">Dubai (DXB) • Anycast</div>
+          </div>
+        </div>
+        <div id="currentPing" class="ping-badge ping-green">~28 ms</div>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Card -->
+    <div class="telemetry-grid">
+      <div class="telemetry-box">
+        <span class="telemetry-label">SPEED IMPACT</span>
+        <span class="telemetry-val text-green">0% (Zero Loss)</span>
+      </div>
+      <div class="telemetry-box">
+        <span class="telemetry-label">EDGE PROTOCOL</span>
+        <span class="telemetry-val text-cyan">TLS 1.3 Anycast</span>
+      </div>
+      <div class="telemetry-box">
+        <span class="telemetry-label">AUTO-FAILOVER</span>
+        <span class="telemetry-val text-amber">Active Pin</span>
+      </div>
+      <div class="telemetry-box">
+        <span class="telemetry-label">BLOCKED SITES</span>
+        <span class="telemetry-val text-purple">Accelerated</span>
+      </div>
+    </div>
+
+    <!-- Custom Domain Rules Collapsible Drawer -->
+    <div class="accordion-section">
+      <button id="toggleRulesBtn" class="accordion-toggle">
+        <span>⚙️ Split-Routing Rules (<span id="domainCount">13</span> domains)</span>
+        <span id="rulesArrow">▾</span>
+      </button>
+      <div id="rulesDrawer" class="accordion-content hidden">
+        <div class="domain-input-group">
+          <input type="text" id="newDomainInput" placeholder="*.example.com or domain.com" class="domain-input">
+          <button id="addDomainBtn" class="add-btn">+</button>
+        </div>
+        <div id="domainList" class="domain-list">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Country Drawer (Modal/Overlaid) -->
+    <div id="countryDrawer" class="drawer hidden">
+      <div class="drawer-header">
+        <div class="drawer-title">Choose Cloudflare Edge Country</div>
+        <button id="closeDrawerBtn" class="close-btn">✕</button>
+      </div>
+
+      <div class="search-box-wrapper">
+        <input type="text" id="countrySearchInput" placeholder="Search 100+ countries or cities..." class="search-input">
+      </div>
+
+      <div class="continent-tabs" id="continentTabs">
+        <button class="cont-tab active" data-continent="all">All</button>
+        <button class="cont-tab" data-continent="Middle East">Mid East</button>
+        <button class="cont-tab" data-continent="Asia">Asia</button>
+        <button class="cont-tab" data-continent="Europe">Europe</button>
+        <button class="cont-tab" data-continent="North America">Americas</button>
+        <button class="cont-tab" data-continent="Africa">Africa</button>
+        <button class="cont-tab" data-continent="Oceania">Oceania</button>
+      </div>
+
+      <div id="countryList" class="country-scroll-list">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a href="https://grproxy.grwebdevs5.workers.dev" target="_blank" class="footer-link">Web Dashboard</a>
+      <span class="footer-dot">•</span>
+      <a href="https://grproxy.grwebdevs5.workers.dev/rotate/tg" target="_blank" class="footer-link">TG 1-Click Launch</a>
+      <span class="footer-dot">•</span>
+      <span class="footer-version">v1.0.0</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

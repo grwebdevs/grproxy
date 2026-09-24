@@ -11,6 +11,7 @@ export interface ProxyItem {
   country: string;
   countryCode: string;
   flag: string;
+  continent?: string;
   latency: number;          // In milliseconds
   isAlive: boolean;
   lastChecked: number;      // Epoch timestamp
@@ -25,6 +26,7 @@ export interface EdgeNode {
   countryCode: string;
   flag: string;
   city: string;
+  continent: string;
   cleanIp: string;
   port: number;
   tls: boolean;
@@ -34,6 +36,26 @@ export interface EdgeNode {
   pingEstimate: number;     // Approximate ms to region
   vlessLink: string;
   singboxOutbound: Record<string, unknown>;
+}
+
+export interface FailoverState {
+  pinnedProxyId: string;
+  protocol: ProxyProtocol;
+  ip: string;
+  port: number;
+  secret?: string;
+  username?: string;
+  password?: string;
+  country: string;
+  countryCode?: string;
+  flag: string;
+  latency: number;
+  pinnedAt: number;
+  lastVerified: number;
+  failoverCount: number;
+  reason: string;
+  tgLink: string;
+  socksUrl?: string;
 }
 
 export interface PoolStats {

@@ -4,6 +4,7 @@ import { scrapeAllSources } from './scraper';
 import { validateProxies } from './validator';
 import { generateEdgeNodes, handleVlessWebSocket } from './edgeNodes';
 import { renderDashboardHtml } from './ui';
+import { getOrRotatePinnedProxy, generatePacScript } from './failover';
 
 export default {
   /**
@@ -32,9 +33,10 @@ export default {
 
     // 2. Web Admin Dashboard
     if (url.pathname === '/' || url.pathname === '') {
-      const [pool, stats] = await Promise.all([
+      const [pool, stats, pinned] = await Promise.all([
         getActivePool(env),
         getPoolStats(env),
+        getOrRotatePinnedProxy(env),
       ]);
 
       // Auto-refresh pool in background if older than 15 minutes
@@ -61,26 +63,48 @@ export default {
       }
 
       const edgeNodes = generateEdgeNodes(host, userUuid);
-      const html = renderDashboardHtml(pool, edgeNodes, stats, host);
+      const html = renderDashboardHtml(pool, edgeNodes, stats, host, pinned);
       return new Response(html, {
         headers: { 'Content-Type': 'text/html;charset=UTF-8' },
       });
     }
 
-    // 3. API: High-Speed Country Edge Nodes (for GRPROXY Android App)
+    // 3. API: High-Speed 100+ Country Edge Nodes (for GRPROXY Extension & Android App)
     if (url.pathname === '/api/nodes') {
       const edgeNodes = generateEdgeNodes(host, userUuid);
-      return new Response(JSON.stringify({ success: true, count: edgeNodes.length, nodes: edgeNodes }, null, 2), {
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
+      return new Response(
+        JSON.stringify(
+          {
+            success: true,
+            count: edgeNodes.length,
+            nodes: edgeNodes,
+          },
+          null,
+          2
+        ),
+        {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
 
-    // 4. API: Telegram 100+ Active Verified Proxies Pool
+    // 4. API: Telegram 100+ Active Verified Proxies Pool with full credentials
     if (url.pathname === '/api/proxies') {
       const pool = await getActivePool(env);
-      return new Response(JSON.stringify({ success: true, total: pool.length, proxies: pool }, null, 2), {
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
+      return new Response(
+        JSON.stringify(
+          {
+            success: true,
+            total: pool.length,
+            proxies: pool,
+          },
+          null,
+          2
+        ),
+        {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
 
     // 5. API: System Health & Pool Stats
@@ -91,14 +115,61 @@ export default {
       });
     }
 
-    // 6. API: Trigger Scrape & Validation
+    // 6. API: Auto-Rotating Smart Failover Proxy Endpoint
+    // Stays pinned to the current working proxy; only hot-swaps on lag or failure
+    if (url.pathname === '/api/rotate') {
+      const force = url.searchParams.get('force') === 'true';
+      const protocolParam = url.searchParams.get('protocol');
+      const protocol = protocolParam === 'mtproto' || protocolParam === 'socks5' ? protocolParam : undefined;
+
+      const pinned = await getOrRotatePinnedProxy(env, { force, protocol });
+      return new Response(
+        JSON.stringify(
+          {
+            success: true,
+            message: 'Auto-rotating proxy pinned until failure (zero unnecessary churn)',
+            pinned,
+          },
+          null,
+          2
+        ),
+        {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
+    // 7. Auto-Rotating 1-Click Telegram Direct Launch (/rotate/tg or /tg/auto)
+    if (url.pathname === '/rotate/tg' || url.pathname === '/tg/auto') {
+      const force = url.searchParams.get('force') === 'true';
+      const pinned = await getOrRotatePinnedProxy(env, { force, protocol: 'mtproto' });
+      return Response.redirect(pinned.tgLink, 302);
+    }
+
+    // 8. Dynamic Proxy Auto-Config (PAC) Script (/pac)
+    // Supports Smart Speed Booster Split-Routing or Global Routing
+    if (url.pathname === '/pac') {
+      const modeParam = url.searchParams.get('mode');
+      const mode = modeParam === 'all' ? 'all' : 'split';
+      // Prioritize SOCKS5 for browser PAC, fallback to any pinned
+      const pinned = await getOrRotatePinnedProxy(env, { protocol: 'socks5' });
+      const pacCode = generatePacScript(pinned, mode);
+      return new Response(pacCode, {
+        headers: {
+          'Content-Type': 'application/x-ns-proxy-autoconfig;charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          ...corsHeaders,
+        },
+      });
+    }
+
+    // 9. API: Trigger Scrape & Validation
     if (url.pathname === '/api/scrape' && request.method === 'POST') {
       try {
         const candidates = await scrapeAllSources(300);
         const validation = await validateProxies(candidates, 120);
 
         let finalPool = validation.alive;
-        // If external sources returned fewer than 30 alive, merge with existing verified pool
         if (finalPool.length < 50) {
           const existing = await getActivePool(env);
           const map = new Map<string, typeof existing[0]>();
@@ -109,6 +180,9 @@ export default {
         }
 
         const savedStats = await saveActivePool(env, finalPool, validation.deadCount);
+        // Refresh pinned proxy with the freshest candidate
+        await getOrRotatePinnedProxy(env, { force: true });
+
         return new Response(
           JSON.stringify({
             success: true,
@@ -126,21 +200,42 @@ export default {
       }
     }
 
-    // 7. Universal Subscription Endpoint (Sing-Box / Clash / V2Ray)
+    // 10. Universal Subscription Endpoint (Sing-Box / Clash / V2Ray)
     if (url.pathname === '/sub') {
       const edgeNodes = generateEdgeNodes(host, userUuid);
       const format = url.searchParams.get('format');
 
       if (format === 'singbox' || request.headers.get('User-Agent')?.toLowerCase().includes('sing-box')) {
+        const nodeTags = edgeNodes.map((n) => n.id);
         const singboxConfig = {
-          outbounds: edgeNodes.map((n) => n.singboxOutbound),
+          outbounds: [
+            {
+              type: 'urltest',
+              tag: 'auto-fastest-failover',
+              outbounds: nodeTags,
+              url: 'https://cp.cloudflare.com/generate_204',
+              interval: '3m',
+              tolerance: 50,
+            },
+            {
+              type: 'selector',
+              tag: 'proxy-select',
+              outbounds: ['auto-fastest-failover', ...nodeTags, 'direct'],
+              default: 'auto-fastest-failover',
+            },
+            ...edgeNodes.map((n) => n.singboxOutbound),
+            {
+              type: 'direct',
+              tag: 'direct',
+            },
+          ],
         };
         return new Response(JSON.stringify(singboxConfig, null, 2), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
         });
       }
 
-      // Default: Standard Base64 subscription
+      // Default: Standard Base64 subscription containing all 100+ edge nodes
       const vlessLinks = edgeNodes.map((n) => n.vlessLink).join('\n');
       const b64 = btoa(unescape(encodeURIComponent(vlessLinks)));
       return new Response(b64, {
@@ -178,6 +273,8 @@ export default {
           }
 
           await saveActivePool(env, finalPool, validation.deadCount);
+          // Check and update pinned proxy if needed
+          await getOrRotatePinnedProxy(env);
           console.log(`[CRON] Pass complete. Active pool: ${finalPool.length}, Pruned: ${validation.deadCount}`);
         } catch (err) {
           console.error('[CRON] Automated scrape pass failed:', err);

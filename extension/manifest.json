@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "GRPROXY — High-Speed Cloudflare Edge & Telegram Proxy",
+  "version": "1.0.0",
+  "description": "Ultra-fast anti-censorship proxy with 100+ Cloudflare Anycast countries and zero-speed-loss split routing for Telegram, Discord, and blocked sites.",
+  "permissions": [
+    "proxy",
+    "storage",
+    "tabs",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GRPROXY High-Speed Proxy",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
