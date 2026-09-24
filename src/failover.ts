@@ -166,31 +166,62 @@ export function generatePacScript(
   }
 
   const backupInstruction = socksBackups
-    .slice(0, 3)
-    .map((p) => `SOCKS5 ${p.ip}:${p.port}; SOCKS ${p.ip}:${p.port}`)
+    .slice(0, 4)
+    .map((p) => `SOCKS5 ${p.ip}:${p.port}`)
     .join('; ');
 
   const proxyInstruction = primarySocks
-    ? [`SOCKS5 ${primarySocks.ip}:${primarySocks.port}`, `SOCKS ${primarySocks.ip}:${primarySocks.port}`, backupInstruction, 'DIRECT']
+    ? [`SOCKS5 ${primarySocks.ip}:${primarySocks.port}`, backupInstruction, 'DIRECT']
         .filter(Boolean)
         .join('; ')
     : backupInstruction
     ? [backupInstruction, 'DIRECT'].join('; ')
     : 'DIRECT';
 
+  const commonBypass = `
+  // 1. Direct Intranet & Local Traffic (Pure string matching - ZERO blocking DNS)
+  if (isPlainHostName(host) ||
+      shExpMatch(host, "*.local") ||
+      shExpMatch(host, "localhost") ||
+      shExpMatch(host, "127.*") ||
+      shExpMatch(host, "10.*") ||
+      shExpMatch(host, "192.168.*") ||
+      shExpMatch(host, "172.16.*") ||
+      shExpMatch(host, "172.17.*") ||
+      shExpMatch(host, "172.18.*") ||
+      shExpMatch(host, "172.19.*") ||
+      shExpMatch(host, "172.2*") ||
+      shExpMatch(host, "172.3*")) {
+    return "DIRECT";
+  }
+
+  // 2. High-Bandwidth Media, CDN & Regional Bypass (Guarantees full native 4K line speed)
+  if (shExpMatch(host, "*.googlevideo.com") ||
+      shExpMatch(host, "*.youtube.com") ||
+      shExpMatch(host, "*.ytimg.com") ||
+      shExpMatch(host, "*.netflix.com") ||
+      shExpMatch(host, "*.nflxvideo.net") ||
+      shExpMatch(host, "*.speedtest.net") ||
+      shExpMatch(host, "*.fast.com") ||
+      shExpMatch(host, "*.steamcontent.com") ||
+      shExpMatch(host, "*.steampowered.com") ||
+      shExpMatch(host, "*.cloudflare.com") ||
+      shExpMatch(host, "*.workers.dev") ||
+      shExpMatch(host, "*.pk") ||
+      shExpMatch(host, "*.gov.pk") ||
+      shExpMatch(host, "*.edu.pk") ||
+      shExpMatch(host, "*.com.pk") ||
+      shExpMatch(host, "*.net.pk") ||
+      shExpMatch(host, "*.org.pk")) {
+    return "DIRECT";
+  }
+  `;
+
   if (mode === 'all') {
     return `// GRPROXY Universal Proxy Auto-Config (Global Mode)
 // Pinned Target: ${primarySocks ? `${primarySocks.country} (${primarySocks.ip}:${primarySocks.port})` : 'Direct Fallback'}
 function FindProxyForURL(url, host) {
-  if (isPlainHostName(host) ||
-      shExpMatch(host, "*.local") ||
-      shExpMatch(host, "localhost") ||
-      isInNet(dnsResolve(host), "10.0.0.0", "255.0.0.0") ||
-      isInNet(dnsResolve(host), "172.16.0.0", "255.240.0.0") ||
-      isInNet(dnsResolve(host), "192.168.0.0", "255.255.0.0") ||
-      isInNet(dnsResolve(host), "127.0.0.0", "255.0.0.0")) {
-    return "DIRECT";
-  }
+${commonBypass}
   return "${proxyInstruction}";
 }
 `;
@@ -212,35 +243,12 @@ function FindProxyForURL(url, host) {
 // Pins to fastest verified SOCKS5: ${primarySocks ? `${primarySocks.country} (${primarySocks.ip}:${primarySocks.port})` : 'Direct'}
 // ZERO SPEED LOSS: 100% native 4K YouTube/Netflix/Download speed, only accelerates blocked sites.
 function FindProxyForURL(url, host) {
-  // 1. Direct Intranet & Local Traffic
-  if (isPlainHostName(host) ||
-      shExpMatch(host, "*.local") ||
-      shExpMatch(host, "localhost") ||
-      isInNet(dnsResolve(host), "10.0.0.0", "255.0.0.0") ||
-      isInNet(dnsResolve(host), "172.16.0.0", "255.240.0.0") ||
-      isInNet(dnsResolve(host), "192.168.0.0", "255.255.0.0") ||
-      isInNet(dnsResolve(host), "127.0.0.0", "255.0.0.0")) {
-    return "DIRECT";
-  }
-
-  // 2. High-Bandwidth Direct Bypass (Never proxy videos or gaming - runs at maximum fiber/4G line speed)
-  if (shExpMatch(host, "*.googlevideo.com") ||
-      shExpMatch(host, "*.youtube.com") ||
-      shExpMatch(host, "*.ytimg.com") ||
-      shExpMatch(host, "*.netflix.com") ||
-      shExpMatch(host, "*.nflxvideo.net") ||
-      shExpMatch(host, "*.speedtest.net") ||
-      shExpMatch(host, "*.steamcontent.com") ||
-      shExpMatch(host, "*.fast.com") ||
-      shExpMatch(host, "*.cloudflare.com") ||
-      shExpMatch(host, "*.workers.dev")) {
-    return "DIRECT";
-  }
-
+${commonBypass}
   // 3. Blocked Services Acceleration (Telegram, Discord, X/Twitter, etc. + Added Links)
   if (shExpMatch(host, "web.telegram.org") ||
       shExpMatch(host, "*.web.telegram.org") ||
       shExpMatch(host, "*.telegram.org") ||
+      shExpMatch(host, "*.telegram-cdn.org") ||
       shExpMatch(host, "*.t.me") ||
       shExpMatch(host, "t.me") ||
       shExpMatch(host, "*.telesco.pe") ||
