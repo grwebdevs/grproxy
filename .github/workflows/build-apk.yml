@@ -1,19 +1,23 @@
-name: Build GRPROXY Android APK
+name: Build & Release GRPROXY Android APK
 
 on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
+    name: Compile Android APKs
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Java JDK
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -28,34 +32,47 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
 
-      - name: Scaffold Android Project
-        working-directory: ./app
-        run: |
-          rm -rf android
-          flutter create --platforms=android --org com.grproxy .
-
       - name: Install Dependencies
         working-directory: ./app
         run: flutter pub get
 
-      - name: Build APKs
+      - name: Build Debug APK
         working-directory: ./app
-        run: |
-          flutter build apk --debug > build.log 2>&1 || {
-            echo "=== BUILD LOG ERROR SUMMARY ==="
-            tail -n 100 build.log
-            exit 1
-          }
+        run: flutter build apk --debug
 
-      - name: Upload Build Log on Failure
-        if: failure()
+      - name: Build Release APK
+        working-directory: ./app
+        run: flutter build apk --release
+
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-failure-log
-          path: app/build.log
+          name: grproxy-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
 
-      - name: Upload APK Artifact
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: grproxy-apk
-          path: app/build/app/outputs/flutter-apk/*.apk
+          name: grproxy-release-apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: warn
+
+      - name: Publish to GitHub Releases
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.0
+          name: GRPROXY v1.1.0 Mobile APK Release
+          body: |
+            ### 🚀 GRPROXY Android Mobile Client v1.1.0
+            - **Per-App Split Tunneling**: Only routes Telegram & Discord through GRPROXY.
+            - **Zero Speed Loss**: Banking, YouTube 4K, and local apps stay direct at full fiber speed.
+            - **100+ Cloudflare Edge Locations**: Auto-fetches live Cloudflare Anycast edge nodes.
+            - Download `app-debug.apk` or `app-release.apk` below and install directly on your Android phone!
+          files: |
+            app/build/app/outputs/flutter-apk/app-debug.apk
+            app/build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

@@ -7,14 +7,25 @@ export interface ValidationResult {
   avgLatency: number;
 }
 
-/**
- * Probes a TCP socket connection using Cloudflare Workers `connect()` API
- * Measures round-trip time and verifies socket establishment.
- */
 export async function testTcpSocket(
   ip: string,
   port: number,
-  timeoutMs = 2200
+  timeoutMs = 2500,
+  protocol: 'mtproto' | 'socks5' = 'mtproto'
+): Promise<{ ok: boolean; latency: number }> {
+  return testProxySocket(ip, port, protocol, timeoutMs);
+}
+
+/**
+ * Probes a TCP socket connection using Cloudflare Workers `connect()` API.
+ * For SOCKS5, sends a SOCKS5 greeting handshake (0x05 0x01 0x00) to ensure
+ * it is a genuine SOCKS5 server rather than a random HTTP or closed port.
+ */
+export async function testProxySocket(
+  ip: string,
+  port: number,
+  protocol: 'mtproto' | 'socks5',
+  timeoutMs = 2500
 ): Promise<{ ok: boolean; latency: number }> {
   const start = Date.now();
   let socket: ReturnType<typeof connect> | null = null;
@@ -30,6 +41,27 @@ export async function testTcpSocket(
     const checkPromise = (async () => {
       await socket!.opened;
       const latency = Date.now() - start;
+
+      // Verify SOCKS5 protocol handshake
+      if (protocol === 'socks5') {
+        try {
+          const writer = socket!.writable.getWriter();
+          await writer.write(new Uint8Array([0x05, 0x01, 0x00]));
+          writer.releaseLock();
+
+          const reader = socket!.readable.getReader();
+          const { value, done } = await reader.read();
+          reader.releaseLock();
+
+          if (done || !value || value[0] !== 0x05) {
+            try { socket!.close(); } catch {}
+            return { ok: false, latency: 9999 };
+          }
+        } catch {
+          try { socket!.close(); } catch {}
+          return { ok: false, latency: 9999 };
+        }
+      }
 
       // Close cleanly
       try {
@@ -72,7 +104,6 @@ export async function validateProxies(
 
   // Process in small batches
   for (let i = 0; i < candidates.length; i += batchSize) {
-    // If we've already achieved target active count with great latency, we can complete early
     if (alive.length >= targetAlive + 20) {
       break;
     }
@@ -80,7 +111,7 @@ export async function validateProxies(
     const batch = candidates.slice(i, i + batchSize);
     const results = await Promise.allSettled(
       batch.map(async (proxy) => {
-        const check = await testTcpSocket(proxy.ip, proxy.port);
+        const check = await testProxySocket(proxy.ip, proxy.port, proxy.protocol);
         return { proxy, check };
       })
     );
