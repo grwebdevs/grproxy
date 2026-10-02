@@ -811,3 +811,287 @@ input:checked + .slider:before {
   background: rgba(239, 68, 68, 0.15);
   color: #fca5a5;
 }
+
+/* ============================================================ */
+/* NEW FEATURES: PRESETS, BENCHMARK & SPEED EXPLAINER           */
+/* ============================================================ */
+
+/* Presets Row */
+.presets-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.presets-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.btn-preset {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-preset:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--border-active);
+  color: var(--emerald-light);
+  transform: translateY(-1px);
+}
+
+/* Benchmark Card */
+.benchmark-card {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.06), rgba(16, 185, 129, 0.06));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.benchmark-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.benchmark-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.benchmark-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.btn-benchmark {
+  background: linear-gradient(135deg, var(--cyan), var(--emerald));
+  color: #07090e;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-benchmark:hover {
+  opacity: 0.92;
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.5);
+  transform: translateY(-1px);
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .benchmark-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bench-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bench-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
+.bench-val {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+.text-emerald { color: var(--emerald-light); }
+.text-cyan { color: var(--cyan); }
+.text-danger { color: #f87171; }
+
+/* Speed Explainer Card */
+.speed-explainer-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.explainer-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.explainer-content {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formula-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #e2e8f0;
+}
+
+.speed-table-mini {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .speed-table-mini {
+    grid-template-columns: 1fr;
+  }
+}
+
+.speed-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+.speed-row.highlight {
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 4px;
+  color: var(--emerald-light);
+}
+
+.explainer-takeaway {
+  font-size: 11.5px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+}
+
+/* 3-Step Setup Grid */
+.setup-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .setup-steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.setup-step-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--emerald);
+  color: #05080e;
+  font-weight: 900;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+
+.step-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.step-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.sub-link-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sub-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--cyan);
+  outline: none;
+}
+
+.btn-sub-copy {
+  background: rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: var(--cyan);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-sub-copy:hover {
+  background: var(--cyan);
+  color: #07090e;
+}
+

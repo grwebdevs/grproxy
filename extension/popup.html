@@ -8,157 +8,138 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Header -->
+    <!-- Top Minimalist Header -->
     <header class="header">
-      <div class="logo-group">
-        <div class="logo-icon">GR</div>
-        <div>
-          <div class="logo-title">GRPROXY</div>
-          <div class="logo-subtitle">Verified SOCKS5 Edge Network</div>
+      <div class="brand-group">
+        <div class="brand-glyph">GR</div>
+        <div class="brand-info">
+          <div class="brand-name">GRPROXY</div>
+          <div class="brand-tag">Cloudflare Edge</div>
         </div>
       </div>
       <div class="header-right-group">
         <div id="statusBadge" class="status-badge disconnected">
           <span class="status-dot"></span>
-          <span id="statusText">DISCONNECTED</span>
+          <span id="statusText">DIRECT</span>
         </div>
-        <button id="openSettingsBtn" class="settings-gear-btn" title="Open Advanced Settings &amp; Bulk Rules">⚙️</button>
+        <button id="openSettingsBtn" class="settings-gear-btn" title="Open Settings &amp; Bulk Rules">⚙️</button>
       </div>
     </header>
 
-    <!-- Master Connect Button -->
-    <div class="connect-section">
-      <button id="mainToggleBtn" class="main-toggle-btn disconnected" title="Toggle Connection">
-        <div class="power-ring"></div>
+    <!-- Hero Touch Connection Card -->
+    <div class="hero-card">
+      <button id="mainToggleBtn" class="main-toggle-btn disconnected" title="Tap to Toggle Connection">
+        <div class="power-glow-ring"></div>
         <div class="power-icon">⚡</div>
         <span id="btnLabel" class="btn-label">CONNECT</span>
       </button>
-      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown SOCKS5 Protection</div>
-    </div>
+      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown SOCKS5</div>
 
-    <!-- Mode Selector (3 Distinct Options) -->
-    <div class="mode-section-label">ROUTING MODE</div>
-    <div class="mode-selector">
-      <!-- Mode 1: Whole Chrome Profile -->
-      <button id="modeWholeBtn" class="mode-btn" data-mode="whole_profile" title="Route all traffic in this profile through the proxy">
-        <div class="mode-btn-left">
-          <span class="mode-icon">🌐</span>
-          <div class="mode-info">
-            <div class="mode-title">Whole Chrome Profile</div>
-            <div class="mode-desc">Routes all browser profile traffic through proxy</div>
-          </div>
-        </div>
-        <div class="mode-indicator"></div>
-      </button>
-
-      <!-- Mode 2: Smart Split-Routing / Added Links Only -->
-      <button id="modeSplitBtn" class="mode-btn active" data-mode="split" title="Route only web.telegram.org and added links through proxy">
-        <div class="mode-btn-left">
-          <span class="mode-icon">⚡</span>
-          <div class="mode-info">
-            <div class="mode-title">Added Links Only (Smart Split)</div>
-            <div class="mode-desc">web.telegram.org & added URLs • Native 4K speed for rest</div>
-          </div>
-        </div>
-        <div class="mode-indicator"></div>
-      </button>
-
-      <!-- Mode 3: Turn Off (Default DIRECT) -->
-      <button id="modeOffBtn" class="mode-btn mode-off" data-mode="off" title="Disable proxy and use direct connection">
-        <div class="mode-btn-left">
-          <span class="mode-icon">⚪</span>
-          <div class="mode-info">
-            <div class="mode-title">Turn Off</div>
-            <div class="mode-desc">Default DIRECT connection • Proxy disabled</div>
-          </div>
-        </div>
-        <div class="mode-indicator"></div>
-      </button>
-    </div>
-
-    <!-- Active Country Card -->
-    <div class="country-card">
-      <div class="country-card-header">
-        <span class="label-muted">ACTIVE SOCKS5 LOCATION</span>
-        <div class="header-actions-group">
-          <button id="copyProxyBtn" class="copy-proxy-btn" title="Copy SOCKS5 IP:Port">📋 Copy</button>
-          <button id="toggleCountryDrawerBtn" class="change-btn">Change (100+) ▾</button>
-        </div>
-      </div>
-      <div class="country-preview" id="openDrawerTrigger">
-        <div class="country-info">
-          <span id="currentFlag" class="country-flag">🇺🇸</span>
-          <div>
-            <div id="currentCountryName" class="country-name">United States</div>
-            <div id="currentCity" class="country-city">Ashburn (IAD) • SOCKS5</div>
-          </div>
-        </div>
-        <div id="currentPing" class="ping-badge ping-green" title="Click to test latency">~42 ms</div>
+      <!-- Sleek Segmented Mode Selector (Touch Pills) -->
+      <div class="segmented-mode-bar">
+        <button id="modeSplitBtn" class="seg-btn active" data-mode="split" title="Smart Split: Telegram &amp; Added Links only • 0% speed loss for rest">
+          <span class="seg-icon">⚡</span>
+          <span class="seg-label">Smart Split</span>
+        </button>
+        <button id="modeWholeBtn" class="seg-btn" data-mode="whole_profile" title="Whole Profile: Routes all traffic in active Chrome profile">
+          <span class="seg-icon">🌐</span>
+          <span class="seg-label">Whole Profile</span>
+        </button>
+        <button id="modeOffBtn" class="seg-btn mode-off" data-mode="off" title="Direct Connection: Proxy completely disabled">
+          <span class="seg-icon">⚪</span>
+          <span class="seg-label">Direct</span>
+        </button>
       </div>
     </div>
 
-    <!-- Live Telemetry Card -->
-    <div class="telemetry-grid">
-      <div class="telemetry-box">
-        <span class="telemetry-label">SPEED IMPACT</span>
-        <span id="telemetrySpeed" class="telemetry-val text-green">0% (Zero Loss)</span>
+    <!-- Active Touch Location Card -->
+    <div class="touch-location-card" id="openDrawerTrigger" title="Click to choose from 100+ countries">
+      <div class="location-left">
+        <span id="currentFlag" class="location-flag">🇺🇸</span>
+        <div class="location-details">
+          <div class="location-title-row">
+            <span id="currentCountryName" class="location-country">United States</span>
+          </div>
+          <div id="currentCity" class="location-city">Ashburn • SOCKS5</div>
+        </div>
       </div>
-      <div class="telemetry-box">
-        <span class="telemetry-label">PROXY PROTOCOL</span>
-        <span class="telemetry-val text-cyan">Verified SOCKS5</span>
-      </div>
-      <div class="telemetry-box" title="Auto-monitors proxies continuously; prunes dead ones and auto-switches if congested">
-        <span class="telemetry-label">AUTO-HEALING</span>
-        <span class="telemetry-val text-green font-bold">⚡ Continuous</span>
-      </div>
-      <div class="telemetry-box">
-        <span class="telemetry-label">AUTO-RECONNECT</span>
-        <span class="telemetry-val text-purple">Persistent Boot</span>
+      <div class="location-right">
+        <span id="currentPing" class="ping-pill fast" title="Click to test ping">~42 ms</span>
+        <button id="copyProxyBtn" class="copy-icon-btn" title="Copy SOCKS5 IP:Port" onclick="event.stopPropagation();">📋</button>
+        <button id="toggleCountryDrawerBtn" class="chevron-btn">›</button>
       </div>
     </div>
 
-    <!-- Custom Domain Rules / Added Links Drawer -->
-    <div class="accordion-section">
-      <button id="toggleRulesBtn" class="accordion-toggle">
-        <span>⚙️ Split-Routing / Added Links (<span id="domainCount">14</span>)</span>
-        <span id="rulesArrow">▾</span>
+    <!-- Minimalist Micro-Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <span class="stat-dot green"></span>
+        <span class="stat-label">SPEED:</span>
+        <span id="telemetrySpeed" class="stat-val text-green">0% Loss</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-dot cyan"></span>
+        <span class="stat-label">HEALING:</span>
+        <span class="stat-val text-cyan">Continuous</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-dot purple"></span>
+        <span class="stat-label">CORE:</span>
+        <span class="stat-val text-purple">Gigabit</span>
+      </div>
+    </div>
+
+    <!-- Collapsible Split Rules Drawer -->
+    <div class="rules-section">
+      <button id="toggleRulesBtn" class="rules-toggle-bar">
+        <div class="rules-toggle-left">
+          <span class="rules-icon">⚡</span>
+          <span>Split Rules &amp; Links (<span id="domainCount">18</span>)</span>
+        </div>
+        <span id="rulesArrow" class="rules-arrow">▾</span>
       </button>
-      <div id="rulesDrawer" class="accordion-content hidden">
-        <!-- Quick Add Current Active Tab -->
+
+      <div id="rulesDrawer" class="rules-drawer-body hidden">
+        <!-- Quick Add Active Tab Banner -->
         <div id="currentSiteBanner" class="current-site-banner hidden">
-          <div class="current-site-info">
-            <span class="site-icon">⚡</span>
-            <div class="site-text-block">
-              <span class="site-label">ACTIVE TAB</span>
-              <span id="currentSiteHost" class="site-host">example.com</span>
-            </div>
+          <div class="current-site-left">
+            <span class="site-badge">CURRENT SITE</span>
+            <span id="currentSiteHost" class="site-host">web.telegram.org</span>
           </div>
-          <button id="addCurrentSiteBtn" class="add-current-site-btn">+ Add to Rules</button>
+          <button id="addCurrentSiteBtn" class="add-site-btn">+ Add to Rules</button>
         </div>
 
-        <div class="domain-input-group">
-          <input type="text" id="newDomainInput" placeholder="Paste URL (e.g. web.telegram.org) or domain" class="domain-input">
-          <button id="addDomainBtn" class="add-btn">+ Add</button>
+        <!-- Add Link Input -->
+        <div class="add-rule-row">
+          <input type="text" id="newDomainInput" placeholder="Paste URL or domain (e.g. fast.com, t.me)..." class="add-rule-input">
+          <button id="addDomainBtn" class="add-rule-btn">+ Add</button>
         </div>
+
+        <!-- Rules Auxiliary Actions -->
         <div class="rules-actions-row">
-          <button id="openSettingsFromRulesBtn" class="rules-aux-btn" title="Open full tab to bulk import links &amp; configure 100+ MB/s Booster">⚙️ Bulk Import / Options</button>
+          <button id="openSettingsFromRulesBtn" class="rules-aux-btn" title="Open full tab to bulk import links &amp; configure 100+ MB/s Booster">⚙️ Bulk Import in Settings</button>
           <button id="resetDomainsBtn" class="rules-aux-btn" title="Reset rules to default Telegram &amp; social proxies">Reset Defaults</button>
         </div>
+
+        <!-- Active Domains List -->
         <div id="domainList" class="domain-list">
-          <!-- Injected via JS -->
+          <!-- Populated via JS -->
         </div>
       </div>
     </div>
 
-    <!-- Country Drawer (Modal) -->
-    <div id="countryDrawer" class="drawer hidden">
+    <!-- Country Drawer (Modal / Slide-Up Sheet) -->
+    <div id="countryDrawer" class="country-drawer hidden">
       <div class="drawer-header">
-        <div class="drawer-title">Choose SOCKS5 Country Location</div>
-        <button id="closeDrawerBtn" class="close-btn">✕</button>
+        <div class="drawer-title-group">
+          <span class="drawer-title">100+ Cloudflare Edge Locations</span>
+          <span class="drawer-subtitle">Verified Ultra-Low Latency SOCKS5</span>
+        </div>
+        <button id="closeDrawerBtn" class="close-drawer-btn">✕</button>
       </div>
 
-      <div class="search-box-wrapper">
-        <input type="text" id="countrySearchInput" placeholder="Search 100+ countries or cities..." class="search-input">
+      <div class="drawer-search-box">
+        <input type="text" id="countrySearchInput" placeholder="Search 100+ countries or cities..." class="drawer-search-input">
       </div>
 
       <div class="continent-tabs" id="continentTabs">
@@ -176,15 +157,15 @@
       </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Clean Footer -->
     <footer class="footer">
-      <div class="shortcut-hint"><span class="kbd">Alt+Shift+P</span> Toggle</div>
-      <span class="footer-dot">•</span>
+      <span class="shortcut-pill"><kbd>Alt+Shift+P</kbd> Toggle</span>
+      <span class="footer-sep">•</span>
       <a href="https://gredge-network.grwebdevs5.workers.dev" target="_blank" class="footer-link">Dashboard</a>
-      <span class="footer-dot">•</span>
+      <span class="footer-sep">•</span>
       <a href="https://gredge-network.grwebdevs5.workers.dev/rotate/tg" target="_blank" class="footer-link">TG Connect</a>
-      <span class="footer-dot">•</span>
-      <span class="footer-version">v1.1.0</span>
+      <span class="footer-sep">•</span>
+      <span class="footer-v">v1.2</span>
     </footer>
   </div>
 
