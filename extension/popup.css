@@ -62,6 +62,8 @@ body {
 .logo-subtitle {
   font-size: 10px;
   color: #64748b;
+}
+
 .header-right-group {
   display: flex;
   align-items: center;
@@ -595,19 +597,23 @@ body {
 }
 
 .rules-aux-btn {
-  background: transparent;
-  border: none;
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #94a3b8;
   font-size: 10px;
   cursor: pointer;
   white-space: nowrap;
-  font-family: monospace;
-  text-decoration: underline;
-  transition: color 0.2s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
 }
 
 .rules-aux-btn:hover {
-  color: #94a3b8;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
 }
 
 .domain-input-group {
