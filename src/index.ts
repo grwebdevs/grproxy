@@ -5,6 +5,7 @@ import { validateProxies } from './validator';
 import { generateEdgeNodes, handleVlessWebSocket } from './edgeNodes';
 import { renderDashboardHtml } from './ui';
 import { getOrRotatePinnedProxy, generatePacScript } from './failover';
+import { pruneAndReplenishPool } from './autoHealer';
 
 export default {
   /**
@@ -44,24 +45,14 @@ export default {
         getOrRotatePinnedProxy(env),
       ]);
 
-      // Auto-refresh pool in background if older than 15 minutes
-      if (Date.now() - (stats.lastScrapedAt || 0) > 15 * 60 * 1000) {
+      // Auto-heal pool in background if older than 20 minutes
+      if (Date.now() - (stats.lastScrapedAt || 0) > 20 * 60 * 1000) {
         ctx.waitUntil(
           (async () => {
             try {
-              const candidates = await scrapeAllSources(200);
-              const validation = await validateProxies(candidates, 120);
-              let finalPool = validation.alive;
-              if (finalPool.length < 50) {
-                const map = new Map<string, typeof pool[0]>();
-                for (const item of pool) map.set(item.id, item);
-                for (const item of finalPool) map.set(item.id, item);
-                finalPool = Array.from(map.values()).slice(0, 130);
-                finalPool.sort((a, b) => a.latency - b.latency);
-              }
-              await saveActivePool(env, finalPool, validation.deadCount);
+              await pruneAndReplenishPool(env);
             } catch (err) {
-              console.warn('Background auto-refresh failed:', err);
+              console.warn('Background auto-heal notice:', err);
             }
           })()
         );
@@ -128,6 +119,37 @@ export default {
       return new Response(JSON.stringify({ success: true, stats }, null, 2), {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
+    }
+
+    // 5b. API: Auto-Heal & Prune Dead Proxies (/api/heal)
+    if (url.pathname === '/api/heal') {
+      try {
+        const report = await pruneAndReplenishPool(env);
+        return new Response(JSON.stringify({ success: true, report }, null, 2), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ success: false, error: (err as Error).message }),
+          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
+    }
+
+    // 5c. API: Latest Health Report (/api/health)
+    if (url.pathname === '/api/health') {
+      try {
+        const reportRaw = await env.GRPROXY_KV.get('pool_health_report', 'json');
+        const stats = await getPoolStats(env);
+        return new Response(JSON.stringify({ success: true, report: reportRaw || null, stats }, null, 2), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      } catch (err) {
+        return new Response(
+          JSON.stringify({ success: false, error: (err as Error).message }),
+          { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        );
+      }
     }
 
     // 6. API: Auto-Rotating Smart Failover Proxy Endpoint
@@ -330,32 +352,17 @@ export default {
 
   /**
    * Scheduled Cron Trigger (every 15 min)
-   * Scrapes, validates via raw TCP sockets, prunes dead proxies, and updates KV
+   * Auto-prunes dead/slow proxies, replenishes with fresh tested nodes, and rotates pinned state
    */
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(
       (async () => {
         try {
-          console.log('[CRON] Starting GRPROXY automated scrape and validation pass...');
-          const candidates = await scrapeAllSources(300);
-          const validation = await validateProxies(candidates, 120);
-
-          let finalPool = validation.alive;
-          if (finalPool.length < 50) {
-            const existing = await getActivePool(env);
-            const map = new Map<string, typeof existing[0]>();
-            for (const item of existing) map.set(item.id, item);
-            for (const item of finalPool) map.set(item.id, item);
-            finalPool = Array.from(map.values()).slice(0, 130);
-            finalPool.sort((a, b) => a.latency - b.latency);
-          }
-
-          await saveActivePool(env, finalPool, validation.deadCount);
-          // Check and update pinned proxy if needed
-          await getOrRotatePinnedProxy(env);
-          console.log(`[CRON] Pass complete. Active pool: ${finalPool.length}, Pruned: ${validation.deadCount}`);
+          console.log('[CRON] Starting GRPROXY automated health prune & replenishment pass...');
+          const report = await pruneAndReplenishPool(env);
+          console.log(`[CRON] Pass complete. Pruned: ${report.prunedCount}, Fresh: ${report.freshCount}, Active: ${report.activeCount}, AvgLatency: ${report.avgLatency}ms`);
         } catch (err) {
-          console.error('[CRON] Automated scrape pass failed:', err);
+          console.error('[CRON] Automated health pass failed:', err);
         }
       })()
     );

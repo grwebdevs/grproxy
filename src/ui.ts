@@ -245,9 +245,13 @@ export function renderDashboardHtml(
         <a href="#tabApk" onclick="switchTab('apk')" class="hidden sm:flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20 transition">
           <span>📱 Mobile Apps</span>
         </a>
+        <button id="healBtn" onclick="triggerHeal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 text-xs font-bold py-1.5 px-3 rounded-xl transition flex items-center space-x-1.5" title="Auto-test sockets, prune dead proxies and replenish fresh working nodes">
+          <span id="healSpinner" class="hidden animate-spin">⚡</span>
+          <span>🛡️ Auto-Heal &amp; Prune</span>
+        </button>
         <button id="scrapeBtn" onclick="triggerScrape()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold py-1.5 px-3 rounded-xl transition flex items-center space-x-1.5">
           <span id="scrapeSpinner" class="hidden animate-spin">⚡</span>
-          <span>🔄 Scrape Fresh Proxies</span>
+          <span>🔄 Scrape Pool</span>
         </button>
       </div>
     </div>
@@ -1388,6 +1392,30 @@ export function renderDashboardHtml(
       } finally {
         spinner.classList.add('hidden');
         btn.disabled = false;
+      }
+    }
+
+    async function triggerHeal() {
+      const btn = document.getElementById('healBtn');
+      const spinner = document.getElementById('healSpinner');
+      if (spinner) spinner.classList.remove('hidden');
+      if (btn) btn.disabled = true;
+      showToast('Testing live sockets, pruning dead nodes & auto-replenishing pool...');
+
+      try {
+        const resp = await fetch('/api/heal');
+        const data = await resp.json();
+        if (data && data.success && data.report) {
+          showToast('⚡ ' + (data.report.status || 'Auto-heal complete!'));
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          showToast('Auto-heal check completed.');
+        }
+      } catch (err) {
+        showToast('Auto-heal request failed.');
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+        if (btn) btn.disabled = false;
       }
     }
 

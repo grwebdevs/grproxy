@@ -442,9 +442,95 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (request.action === 'TRIGGER_AUTO_HEAL') {
+    autoCheckAndHealProxy().then(() => {
+      sendResponse({ success: true });
+    });
+    return true;
+  }
 });
 
-// Diagnostics & Error monitoring
+/**
+ * Automated Proxy Health Monitor & Self-Healing Engine (Extension Client):
+ * Periodically verifies that the active proxy remains in the live verified pool.
+ * If the current proxy drops or becomes congested (>1000ms), seamlessly hot-swaps
+ * to a healthy node in the same country (or fastest worldwide) without user intervention.
+ */
+async function autoCheckAndHealProxy() {
+  chrome.storage.local.get(['isConnected', 'mode', 'selectedProxy', 'workerHost', 'customDomains', 'backupProxies'], async (res) => {
+    if (!res || !res.isConnected || res.mode === 'off' || !res.selectedProxy) {
+      return;
+    }
+
+    const current = res.selectedProxy;
+    const host = res.workerHost || DEFAULT_WORKER_HOST;
+
+    try {
+      const resp = await fetch(`https://${host}/api/proxies?protocol=socks5&_t=${Date.now()}`, { cache: 'no-store' });
+      const data = await resp.json();
+
+      if (data && data.success && Array.isArray(data.proxies) && data.proxies.length > 0) {
+        const freshPool = data.proxies;
+        const stillHealthy = freshPool.find((p) => p.ip === current.ip && p.port === current.port);
+
+        if (!stillHealthy || stillHealthy.latency > 1000) {
+          // Current proxy is dead or lagging! Auto-heal by finding replacement in same country or fastest overall
+          const sameCountry = freshPool.find((p) => p.countryCode === current.countryCode && p.latency < 800 && (p.ip !== current.ip || p.port !== current.port));
+          const replacement = sameCountry || freshPool[0];
+
+          if (replacement && (replacement.ip !== current.ip || replacement.port !== current.port)) {
+            console.log(`[GRPROXY Auto-Heal] Swapping from ${current.ip}:${current.port} to ${replacement.country} ${replacement.ip}:${replacement.port}`);
+            
+            const newBackups = freshPool.filter((p) => p.id !== replacement.id).slice(0, 1);
+            applyProxy(
+              {
+                id: replacement.id,
+                ip: replacement.ip,
+                port: replacement.port,
+                country: replacement.country,
+                countryCode: replacement.countryCode,
+                flag: replacement.flag,
+                city: replacement.city,
+                latency: replacement.latency,
+              },
+              res.mode,
+              res.customDomains || DEFAULT_DOMAINS,
+              newBackups,
+              false
+            );
+
+            if (chrome.notifications) {
+              chrome.notifications.create(`grproxy-autoheal-${Date.now()}`, {
+                type: 'basic',
+                iconUrl: 'icons/icon-active-128.png',
+                title: '⚡ GRPROXY Auto-Healed',
+                message: `Switched from slow node to ${replacement.flag} ${replacement.country} (~${replacement.latency}ms)`,
+                priority: 1,
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[GRPROXY Auto-Heal] Health probe error:', err);
+    }
+  });
+}
+
+// Set up periodic health check alarm (runs every 5 minutes)
+if (chrome.alarms) {
+  chrome.alarms.create('grproxy-auto-heal', { periodInMinutes: 5 });
+  chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'grproxy-auto-heal') {
+      autoCheckAndHealProxy();
+    }
+  });
+}
+
+// Diagnostics & Error monitoring with proactive auto-heal trigger
 chrome.proxy.onProxyError.addListener((details) => {
   console.warn('[GRPROXY] Chrome Proxy Subsystem Warning:', details);
+  // Trigger proactive auto-heal on proxy error
+  autoCheckAndHealProxy();
 });
