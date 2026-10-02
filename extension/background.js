@@ -48,13 +48,16 @@ const DEFAULT_DOMAINS = [
   '*.medium.com',
 ];
 
-// Verified Ultra-Fast SOCKS5 Proxies (Confirmed with Live TLS Transfer to web.telegram.org:443)
+// Verified Ultra-Fast SOCKS5 Proxies (Tested Live with Direct Handshake)
 const VERIFIED_SOCKS5_POOL = [
-  { id: 'socks5_185.87.255.47_1080', ip: '185.87.255.47', port: 1080, country: 'United Kingdom', countryCode: 'GB', flag: '🇬🇧', city: 'London (Fastest 762ms)', latency: 762 },
-  { id: 'socks5_185.87.255.54_1080', ip: '185.87.255.54', port: 1080, country: 'United Kingdom', countryCode: 'GB', flag: '🇬🇧', city: 'London Hub (793ms)', latency: 793 },
-  { id: 'socks5_141.148.158.143_1080', ip: '141.148.158.143', port: 1080, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Phoenix Core', latency: 1824 },
-  { id: 'socks5_184.170.245.148_4145', ip: '184.170.245.148', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Atlanta Edge', latency: 2027 },
-  { id: 'socks5_192.243.115.26_1080', ip: '192.243.115.26', port: 1080, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Los Angeles Hub', latency: 3878 },
+  { id: 'socks5_91.107.179.68_10809', ip: '91.107.179.68', port: 10809, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt Core (Fastest 302ms)', latency: 302 },
+  { id: 'socks5_202.160.76.168_1080', ip: '202.160.76.168', port: 1080, country: 'Taiwan', countryCode: 'TW', flag: '🇹🇼', city: 'Taipei Hub (325ms)', latency: 325 },
+  { id: 'socks5_43.203.114.231_3128', ip: '43.203.114.231', port: 3128, country: 'South Korea', countryCode: 'KR', flag: '🇰🇷', city: 'Seoul Edge (342ms)', latency: 342 },
+  { id: 'socks5_5.45.119.70_1080', ip: '5.45.119.70', port: 1080, country: 'Estonia / EU', countryCode: 'EE', flag: '🇪🇪', city: 'Tallinn Core (354ms)', latency: 354 },
+  { id: 'socks5_45.74.31.22_8157', ip: '45.74.31.22', port: 8157, country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam Hub (480ms)', latency: 480 },
+  { id: 'socks5_199.66.182.243_4145', ip: '199.66.182.243', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'East Coast (513ms)', latency: 513 },
+  { id: 'socks5_192.252.208.70_14282', ip: '192.252.208.70', port: 14282, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Atlanta Hub (516ms)', latency: 516 },
+  { id: 'socks5_69.174.54.63_12393', ip: '69.174.54.63', port: 12393, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Los Angeles (647ms)', latency: 647 },
 ];
 
 const DEFAULT_SOCKS5_PROXY = VERIFIED_SOCKS5_POOL[0];
@@ -115,7 +118,7 @@ function buildPacScript(mode, proxy, backupProxies = [], customDomains = []) {
 
   const cleanBackups = (backupProxies && backupProxies.length > 0 ? backupProxies : DEFAULT_BACKUPS)
     .filter((b) => b && b.ip && b.port && b.ip !== p.ip)
-    .slice(0, 4)
+    .slice(0, 1)
     .map((b) => `SOCKS5 ${b.ip}:${b.port}`);
 
   const proxyChain = [

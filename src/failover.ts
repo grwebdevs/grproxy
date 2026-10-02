@@ -21,11 +21,15 @@ export async function getOrRotatePinnedProxy(
     const raw = await env.GRPROXY_KV.get(kvKey, 'json');
     if (raw && typeof raw === 'object' && (raw as FailoverState).pinnedProxyId) {
       const candidateState = raw as FailoverState;
-      // Invalidate synthetic placeholder proxies from legacy cache
+      // Invalidate synthetic placeholder or known dead proxies from legacy cache
       if (
         candidateState.ip &&
         !candidateState.ip.startsWith('149.154.') &&
         !candidateState.ip.startsWith('91.108.') &&
+        candidateState.ip !== '185.87.255.47' &&
+        candidateState.ip !== '185.87.255.54' &&
+        candidateState.ip !== '141.148.158.143' &&
+        candidateState.ip !== '192.243.115.26' &&
         !(candidateState.secret && candidateState.secret.startsWith('ee00112233445566778899aabbccdd')) &&
         !(candidateState.secret && candidateState.secret.startsWith('ee00000000000000000000000000000000'))
       ) {
