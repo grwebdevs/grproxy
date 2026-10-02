@@ -4,7 +4,7 @@
  * Multi-Tier Verified SOCKS5 Fallback, and Persistent Auto-Reconnect.
  */
 
-const DEFAULT_WORKER_HOST = 'grproxy.grwebdevs5.workers.dev';
+const DEFAULT_WORKER_HOST = 'gredge-network.grwebdevs5.workers.dev';
 
 // Targeted Anti-Censorship Domain List (Telegram Web, Core, CDN, Discord, Socials)
 const DEFAULT_DOMAINS = [

@@ -11,9 +11,14 @@ export default {
    * Main HTTP request handler
    */
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(request.url);
-    const host = url.host;
-    const userUuid = env.USER_UUID || 'd342d11e-d424-4583-b36e-524ab1f0afa4';
+    try {
+      const url = new URL(request.url);
+      const host = url.host;
+      const userUuid = env.USER_UUID || 'd342d11e-d424-4583-b36e-524ab1f0afa4';
+
+      if (url.pathname === '/ping') {
+        return new Response('pong ' + (env.APP_NAME || 'no-var'));
+      }
 
     // 1. WebSocket VLESS Edge Relay Handler
     if (request.headers.get('Upgrade') === 'websocket' || url.pathname === '/ws') {
@@ -302,7 +307,25 @@ export default {
       });
     }
 
-    return new Response('Not Found', { status: 404 });
+      return new Response('Not Found', { status: 404 });
+    } catch (err: any) {
+      console.error('Unhandled Worker Exception:', err);
+      return new Response(
+        JSON.stringify(
+          {
+            success: false,
+            error: err?.message || String(err),
+            stack: err?.stack || null,
+          },
+          null,
+          2
+        ),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        }
+      );
+    }
   },
 
   /**

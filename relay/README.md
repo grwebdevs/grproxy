@@ -10,7 +10,7 @@ This dispatcher solves the common problem:
 ```mermaid
 flowchart LR
     A[Telegram Mobile App<br/><b>Add 1 Proxy: your-ip:1080</b>] --> B[GRPROXY Smart Dispatcher<br/><b>Port 1080</b>]
-    B -->|Fetches Fresh Pool| C[GRPROXY Cloudflare Worker<br/><b>grproxy.grwebdevs5.workers.dev</b>]
+    B -->|Fetches Fresh Pool| C[GRPROXY Cloudflare Worker<br/><b>gredge-network.grwebdevs5.workers.dev</b>]
     B -->|Auto-Failover| D[Top Verified SOCKS5 Proxies<br/>🇳🇱 Netherlands / 🇩🇪 Germany / 🇺🇸 USA]
     D --> E[Telegram Data Centers<br/>DC1 - DC5]
 ```
@@ -20,7 +20,7 @@ flowchart LR
    - **Port**: `1080`
    - **Type**: SOCKS5
    - **Username / Password**: *(leave empty)*
-2. In the background, the dispatcher connects to your Cloudflare Worker (`https://grproxy.grwebdevs5.workers.dev/api/proxies?protocol=socks5`).
+2. In the background, the dispatcher connects to your Cloudflare Worker (`https://gredge-network.grwebdevs5.workers.dev/api/proxies?protocol=socks5`).
 3. If an upstream proxy goes down or lags, the dispatcher **automatically hot-swaps** to the next healthy proxy in milliseconds without Telegram disconnecting!
 
 ---
