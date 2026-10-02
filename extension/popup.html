@@ -17,9 +17,12 @@
           <div class="logo-subtitle">Verified SOCKS5 Edge Network</div>
         </div>
       </div>
-      <div id="statusBadge" class="status-badge disconnected">
-        <span class="status-dot"></span>
-        <span id="statusText">DISCONNECTED</span>
+      <div class="header-right-group">
+        <div id="statusBadge" class="status-badge disconnected">
+          <span class="status-dot"></span>
+          <span id="statusText">DISCONNECTED</span>
+        </div>
+        <button id="openSettingsBtn" class="settings-gear-btn" title="Open Advanced Settings &amp; Bulk Rules">⚙️</button>
       </div>
     </header>
 
@@ -138,8 +141,8 @@
           <button id="addDomainBtn" class="add-btn">+ Add</button>
         </div>
         <div class="rules-actions-row">
-          <span class="domain-help-text">Added links route through SOCKS5 in Split-Routing mode.</span>
-          <button id="resetDomainsBtn" class="rules-aux-btn" title="Reset rules to default Telegram & social proxies">Reset Defaults</button>
+          <button id="openSettingsFromRulesBtn" class="rules-aux-btn" title="Open full tab to bulk import links &amp; configure 100+ MB/s Booster">⚙️ Bulk Import / Options</button>
+          <button id="resetDomainsBtn" class="rules-aux-btn" title="Reset rules to default Telegram &amp; social proxies">Reset Defaults</button>
         </div>
         <div id="domainList" class="domain-list">
           <!-- Injected via JS -->

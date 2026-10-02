@@ -126,6 +126,8 @@ const currentSiteBanner = document.getElementById('currentSiteBanner');
 const currentSiteHost = document.getElementById('currentSiteHost');
 const addCurrentSiteBtn = document.getElementById('addCurrentSiteBtn');
 const resetDomainsBtn = document.getElementById('resetDomainsBtn');
+const openSettingsBtn = document.getElementById('openSettingsBtn');
+const openSettingsFromRulesBtn = document.getElementById('openSettingsFromRulesBtn');
 
 function detectCurrentTab() {
   if (chrome.tabs && chrome.tabs.query) {
@@ -469,6 +471,17 @@ toggleRulesBtn.addEventListener('click', () => {
   }
 });
 
+function openOptions() {
+  if (chrome.runtime.openOptionsPage) {
+    chrome.runtime.openOptionsPage();
+  } else {
+    window.open(chrome.runtime.getURL('options.html'));
+  }
+}
+
+if (openSettingsBtn) openSettingsBtn.addEventListener('click', openOptions);
+if (openSettingsFromRulesBtn) openSettingsFromRulesBtn.addEventListener('click', openOptions);
+
 addDomainBtn.addEventListener('click', () => {
   const raw = newDomainInput.value.trim();
   if (!raw) return;
@@ -480,9 +493,21 @@ addDomainBtn.addEventListener('click', () => {
     chrome.storage.local.set({ customDomains: state.customDomains });
     renderDomains();
 
+    const orig = addDomainBtn.innerText;
+    addDomainBtn.innerText = 'Added! ✓';
+    setTimeout(() => {
+      addDomainBtn.innerText = orig;
+    }, 1200);
+
     if (state.isConnected && state.mode === 'split') {
       applyConnection('split');
     }
+  } else if (state.customDomains.includes(sanitized)) {
+    const orig = addDomainBtn.innerText;
+    addDomainBtn.innerText = 'Exists!';
+    setTimeout(() => {
+      addDomainBtn.innerText = orig;
+    }, 1200);
   }
 });
 

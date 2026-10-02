@@ -110,26 +110,38 @@ function updateToolbarState(isConnected, proxy = null, mode = 'split') {
 /**
  * Builds resilient, ultra-fast PAC script.
  * Pure SOCKS5 fallback chain with verified responsive nodes.
- * High-bandwidth streaming (YouTube 4K, Netflix, Downloads) always stays DIRECT for 0% speed loss.
+ * High-bandwidth streaming (YouTube 4K, Netflix, Downloads) stays DIRECT for 0% speed loss.
+ * User-added rules are evaluated FIRST so domains like fast.com are never accidentally bypassed.
  * ZERO synchronous DNS blocking (removes dnsResolve which causes browser hangs).
  */
-function buildPacScript(mode, proxy, backupProxies = [], customDomains = []) {
+function buildPacScript(mode, proxy, backupProxies = [], customDomains = [], options = {}) {
   const p = proxy || DEFAULT_SOCKS5_PROXY;
+  const {
+    proxySpeedTests = false,
+    bypassMedia = true,
+    localRelayEnabled = false,
+    localRelayHost = '127.0.0.1',
+    localRelayPort = 10808,
+  } = options;
+
+  let activePrimary = `SOCKS5 ${p.ip}:${p.port}`;
+  if (localRelayEnabled) {
+    activePrimary = `SOCKS5 ${localRelayHost}:${localRelayPort}`;
+  }
 
   const cleanBackups = (backupProxies && backupProxies.length > 0 ? backupProxies : DEFAULT_BACKUPS)
-    .filter((b) => b && b.ip && b.port && b.ip !== p.ip)
+    .filter((b) => b && b.ip && b.port && (localRelayEnabled ? true : b.ip !== p.ip))
     .slice(0, 1)
     .map((b) => `SOCKS5 ${b.ip}:${b.port}`);
 
   const proxyChain = [
-    `SOCKS5 ${p.ip}:${p.port}`,
+    activePrimary,
     ...cleanBackups,
     'DIRECT',
   ].join('; ');
 
-  // Common high-bandwidth streaming & intranet bypass (Instant microsecond string matching, ZERO DNS delay)
-  const commonBypass = `
-  // 1. Direct Intranet & Localhost (Pure string matching - No blocking dnsResolve)
+  // Intranet & Localhost Bypass (Pure string matching - No blocking dnsResolve)
+  const intranetBypass = `
   if (isPlainHostName(host) ||
       shExpMatch(host, "*.local") ||
       shExpMatch(host, "localhost") ||
@@ -144,18 +156,37 @@ function buildPacScript(mode, proxy, backupProxies = [], customDomains = []) {
       shExpMatch(host, "172.3*")) {
     return "DIRECT";
   }
-
-  // 2. High-Bandwidth Speed Tests, Media & CDN Direct Bypass (Guarantees 100% native fiber speed)
-  if (/(^|\.)(fast\.com|speedtest\.net|netflix\.com|nflxvideo\.net|nflxext\.com|nflximg\.net|youtube\.com|googlevideo\.com|ytimg\.com|steamcontent\.com|steampowered\.com|cloudflare\.com|workers\.dev|speed\.cloudflare\.com|pk)$/i.test(host)) {
-    return "DIRECT";
-  }
   `;
+
+  const mediaPatterns = 'netflix\\.com|nflxvideo\\.net|nflxext\\.com|nflximg\\.net|youtube\\.com|googlevideo\\.com|ytimg\\.com|steamcontent\\.com|steampowered\\.com|cloudflare\\.com|workers\\.dev|speed\\.cloudflare\\.com|pk';
+  const speedTestPatterns = 'fast\\.com|speedtest\\.net';
+
+  // Build user-defined custom domains condition
+  const allDomains = Array.from(new Set([...DEFAULT_DOMAINS, ...(customDomains || [])]));
+  const domainRules = allDomains
+    .map((d) => d.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/:\d+$/, ''))
+    .filter(Boolean)
+    .map((d) => {
+      if (d.startsWith('*.')) return `shExpMatch(host, "${d}") || shExpMatch(host, "${d.slice(2)}")`;
+      if (d.includes('*')) return `shExpMatch(host, "${d}")`;
+      return `shExpMatch(host, "${d}") || shExpMatch(host, "*.${d}")`;
+    });
+  const domainCondition = domainRules.length > 0 ? domainRules.join(' ||\n      ') : 'false';
 
   // Mode 1: Whole Chrome Profile
   if (mode === 'whole_profile' || mode === 'global') {
-    return `// GRPROXY Whole Profile PAC - Active Node: ${p.country || 'Edge'} (${p.ip}:${p.port})
+    let wholeProfileBypass = '';
+    if (!proxySpeedTests) {
+      wholeProfileBypass += `  if (/(^|\\.)(${speedTestPatterns})$/i.test(host)) return "DIRECT";\n`;
+    }
+    if (bypassMedia) {
+      wholeProfileBypass += `  if (/(^|\\.)(${mediaPatterns})$/i.test(host)) return "DIRECT";\n`;
+    }
+
+    return `// GRPROXY Whole Profile PAC - Active Node: ${localRelayEnabled ? 'Local Relay (' + localRelayHost + ':' + localRelayPort + ')' : (p.country || 'Edge') + ' (' + p.ip + ':' + p.port + ')'}
 function FindProxyForURL(url, host) {
-${commonBypass}
+${intranetBypass}
+${wholeProfileBypass}
   // Route all other web profile traffic through verified SOCKS5 chain
   return "${proxyChain}";
 }
@@ -163,28 +194,29 @@ ${commonBypass}
   }
 
   // Mode 2: Smart Split-Routing / Added Links Only (Default)
-  const allDomains = Array.from(new Set([...DEFAULT_DOMAINS, ...(customDomains || [])]));
+  // CRITICAL FIX: Evaluate user-added rules FIRST!
+  let splitBypass = '';
+  if (bypassMedia) {
+    splitBypass += `  if (/(^|\\.)(${mediaPatterns})$/i.test(host)) return "DIRECT";\n`;
+  }
+  if (!proxySpeedTests) {
+    splitBypass += `  if (/(^|\\.)(${speedTestPatterns})$/i.test(host)) return "DIRECT";\n`;
+  }
 
-  const domainRules = allDomains
-    .map((d) => d.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, ''))
-    .filter(Boolean)
-    .map((d) => {
-      if (d.startsWith('*.')) return `shExpMatch(host, "${d}") || shExpMatch(host, "${d.slice(2)}")`;
-      if (d.includes('*')) return `shExpMatch(host, "${d}")`;
-      return `shExpMatch(host, "${d}") || shExpMatch(host, "*.${d}")`;
-    });
-
-  const domainCondition = domainRules.join(' ||\n      ');
-
-  return `// GRPROXY Smart Split-Routing PAC - Active Node: ${p.country || 'Edge'} (${p.ip}:${p.port})
+  return `// GRPROXY Smart Split-Routing PAC - Active Node: ${localRelayEnabled ? 'Local Relay (' + localRelayHost + ':' + localRelayPort + ')' : (p.country || 'Edge') + ' (' + p.ip + ':' + p.port + ')'}
 function FindProxyForURL(url, host) {
-${commonBypass}
-  // 3. Blocked Services Acceleration (Telegram Web & Added Links ONLY)
+  // 1. Explicit Added Rules (Evaluated FIRST so fast.com / telegram always proxied if added)
   if (${domainCondition}) {
     return "${proxyChain}";
   }
 
-  // 4. Default: DIRECT at full native fiber line speed (0% speed loss)
+  // 2. Intranet & Localhost
+${intranetBypass}
+
+  // 3. Media & CDN direct bypass (0% speed loss for general browsing)
+${splitBypass}
+
+  // 4. Default: DIRECT at full native line speed
   return "DIRECT";
 }
 `;
@@ -226,38 +258,53 @@ function applyProxy(proxy, mode, domains = [], backups = [], isAutoReconnect = f
     return;
   }
 
-  const pacScript = buildPacScript(mode, proxy, backups, domains);
-  const config = {
-    mode: 'pac_script',
-    pacScript: {
-      data: pacScript,
-    },
-  };
+  chrome.storage.local.get([
+    'proxySpeedTests',
+    'bypassMedia',
+    'localRelayEnabled',
+    'localRelayHost',
+    'localRelayPort',
+  ], (opt) => {
+    const pacScript = buildPacScript(mode, proxy, backups, domains, {
+      proxySpeedTests: opt?.proxySpeedTests || false,
+      bypassMedia: opt?.bypassMedia !== false,
+      localRelayEnabled: opt?.localRelayEnabled || false,
+      localRelayHost: opt?.localRelayHost || '127.0.0.1',
+      localRelayPort: opt?.localRelayPort || 10808,
+    });
 
-  chrome.proxy.settings.set({ value: config, scope: 'regular' }, () => {
-    if (chrome.runtime.lastError) {
-      console.error('[GRPROXY] Failed to set proxy:', chrome.runtime.lastError);
-      if (callback) callback({ success: false, error: chrome.runtime.lastError.message });
-      return;
-    }
-
-    updateToolbarState(true, proxy, mode);
-
-    chrome.storage.local.set(
-      {
-        isConnected: true,
-        mode,
-        selectedProxy: proxy,
-        selectedNodeId: proxy.id,
-        backupProxies: backups && backups.length > 0 ? backups : DEFAULT_BACKUPS,
-        customDomains: domains && domains.length > 0 ? domains : DEFAULT_DOMAINS,
-        connectedAt: Date.now(),
+    const config = {
+      mode: 'pac_script',
+      pacScript: {
+        data: pacScript,
       },
-      () => {
-        sendDesktopNotification(proxy, isAutoReconnect);
-        if (callback) callback({ success: true, mode, proxy });
+    };
+
+    chrome.proxy.settings.set({ value: config, scope: 'regular' }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('[GRPROXY] Failed to set proxy:', chrome.runtime.lastError);
+        if (callback) callback({ success: false, error: chrome.runtime.lastError.message });
+        return;
       }
-    );
+
+      updateToolbarState(true, proxy, mode);
+
+      chrome.storage.local.set(
+        {
+          isConnected: true,
+          mode,
+          selectedProxy: proxy,
+          selectedNodeId: proxy.id,
+          backupProxies: backups && backups.length > 0 ? backups : DEFAULT_BACKUPS,
+          customDomains: domains && domains.length > 0 ? domains : DEFAULT_DOMAINS,
+          connectedAt: Date.now(),
+        },
+        () => {
+          sendDesktopNotification(proxy, isAutoReconnect);
+          if (callback) callback({ success: true, mode, proxy });
+        }
+      );
+    });
   });
 }
 
@@ -449,6 +496,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (request.action === 'REAPPLY_PROXY') {
+    chrome.storage.local.get(['isConnected', 'mode', 'selectedProxy', 'customDomains', 'backupProxies'], (res) => {
+      if (res && res.isConnected && res.mode !== 'off' && res.selectedProxy) {
+        applyProxy(res.selectedProxy, res.mode, res.customDomains, res.backupProxies, false, sendResponse);
+      } else {
+        if (sendResponse) sendResponse({ success: true, active: false });
+      }
+    });
+    return true;
+  }
 });
 
 /**
@@ -458,8 +516,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * to a healthy node in the same country (or fastest worldwide) without user intervention.
  */
 async function autoCheckAndHealProxy() {
-  chrome.storage.local.get(['isConnected', 'mode', 'selectedProxy', 'workerHost', 'customDomains', 'backupProxies'], async (res) => {
+  chrome.storage.local.get([
+    'isConnected',
+    'mode',
+    'selectedProxy',
+    'workerHost',
+    'customDomains',
+    'backupProxies',
+    'autoHealEnabled',
+    'healNotificationsEnabled',
+  ], async (res) => {
     if (!res || !res.isConnected || res.mode === 'off' || !res.selectedProxy) {
+      return;
+    }
+
+    if (res.autoHealEnabled === false) {
       return;
     }
 
@@ -500,7 +571,7 @@ async function autoCheckAndHealProxy() {
               false
             );
 
-            if (chrome.notifications) {
+            if (res.healNotificationsEnabled !== false && chrome.notifications) {
               chrome.notifications.create(`grproxy-autoheal-${Date.now()}`, {
                 type: 'basic',
                 iconUrl: 'icons/icon-active-128.png',

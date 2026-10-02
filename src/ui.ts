@@ -495,6 +495,33 @@ export function renderDashboardHtml(
           </div>
         </div>
 
+        <!-- New v1.2 Features: Options Page & 100+ MB/s Booster -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/60 p-5 rounded-2xl border border-emerald-500/30 space-y-2">
+            <div class="text-2xl">⚙️</div>
+            <h4 class="text-sm font-bold text-white">Full Settings Page (options.html)</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Open the dedicated settings dashboard in a full Chrome tab. Bulk import hundreds of links at once, export to clipboard, deduplicate, and search through your active split rules.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-5 rounded-2xl border border-cyan-500/30 space-y-2">
+            <div class="text-2xl">🚀</div>
+            <h4 class="text-sm font-bold text-white">100+ MB/s Gigabit Speed Booster</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Enable the Cloudflare Anycast Local Relay switch (<code class="text-cyan-300">127.0.0.1:10808</code>) in Settings to achieve full fiber line speeds over 100 MB/s download without proxy throttling!
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-5 rounded-2xl border border-brand-500/30 space-y-2">
+            <div class="text-2xl">🛡️</div>
+            <h4 class="text-sm font-bold text-white">Continuous Self-Healing</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Autonomous background health checks test proxies every 5 minutes. If a server slows down or drops, GRPROXY auto-heals and swaps to a responsive node in the same country.
+            </p>
+          </div>
+        </div>
+
         <!-- How to Install in 60s -->
         <div class="bg-slate-950/90 p-6 rounded-2xl border border-slate-800 space-y-4">
           <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">

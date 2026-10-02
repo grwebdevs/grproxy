@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRPROXY Settings & Split-Routing Management</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <!-- Top Header -->
+    <header class="options-header">
+      <div class="header-left">
+        <div class="brand-badge">GR</div>
+        <div>
+          <div class="brand-title">GRPROXY Settings</div>
+          <div class="brand-subtitle">Zero-Slowdown Anti-Censorship Edge &amp; Split-Routing Engine</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="saveAllBtn" class="btn-primary">💾 Save All Changes</button>
+        <button id="resetDefaultsBtn" class="btn-secondary">🔄 Reset All to Defaults</button>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="options-grid">
+      <!-- Left Column: Navigation Tabs -->
+      <nav class="options-nav">
+        <button class="nav-tab active" data-section="splitRulesSection">
+          <span class="nav-icon">⚡</span>
+          <div>
+            <div class="nav-title">Split Rules &amp; Bulk Import</div>
+            <div class="nav-desc">Bulk add, manage &amp; test custom URLs</div>
+          </div>
+        </button>
+
+        <button class="nav-tab" data-section="speedSection">
+          <span class="nav-icon">🚀</span>
+          <div>
+            <div class="nav-title">100+ MB/s Speed Booster</div>
+            <div class="nav-desc">Cloudflare Gigabit Relay &amp; Bypass controls</div>
+          </div>
+        </button>
+
+        <button class="nav-tab" data-section="autoHealSection">
+          <span class="nav-icon">🛡️</span>
+          <div>
+            <div class="nav-title">Auto-Healing &amp; Failover</div>
+            <div class="nav-desc">Automatic dead proxy pruning frequency</div>
+          </div>
+        </button>
+
+        <button class="nav-tab" data-section="nodesSection">
+          <span class="nav-icon">🌐</span>
+          <div>
+            <div class="nav-title">Edge Nodes &amp; Proxies</div>
+            <div class="nav-desc">Inspect verified live server pool</div>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Right Column: Settings Content Panels -->
+      <main class="options-content">
+        <!-- Toast Notification Alert -->
+        <div id="toastAlert" class="toast-alert hidden">
+          <span id="toastIcon">✓</span>
+          <span id="toastText">Settings saved successfully!</span>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SECTION 1: SPLIT RULES & BULK IMPORT           -->
+        <!-- ============================================== -->
+        <section id="splitRulesSection" class="settings-card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">⚡ Split-Routing &amp; Custom Domain Rules</h2>
+              <p class="card-desc">
+                In <strong>Added Links Only (Smart Split)</strong> mode, only domains in this list route through the proxy.
+                All other sites (Google, YouTube 4K, Downloads) stay DIRECT at 100% native line speed!
+              </p>
+            </div>
+            <div class="rule-badge"><span id="totalRulesCount">0</span> Active Rules</div>
+          </div>
+
+          <!-- Bulk Import Box -->
+          <div class="bulk-import-box">
+            <label class="input-label" for="bulkInput">
+              <span>📋 Bulk Import Domains / URLs</span>
+              <span class="label-hint">Paste multiple links (one per line, comma, or space-separated):</span>
+            </label>
+            <textarea id="bulkInput" rows="5" class="bulk-textarea" placeholder="Example:
+fast.com
+web.telegram.org
+discord.com
+x.com
+https://reddit.com/r/all
+medium.com"></textarea>
+            <div class="bulk-actions">
+              <button id="importBulkBtn" class="btn-accent">➕ Import &amp; Add to Rules</button>
+              <button id="exportRulesBtn" class="btn-subtle">📋 Export All to Clipboard</button>
+              <button id="clearCustomBtn" class="btn-danger">🗑️ Clear Custom Rules</button>
+            </div>
+          </div>
+
+          <!-- Quick Single Domain Input -->
+          <div class="single-add-box">
+            <input type="text" id="singleDomainInput" class="single-input" placeholder="Type single domain or paste URL (e.g. fast.com, t.me)...">
+            <button id="addSingleBtn" class="btn-primary-sm">+ Add Link</button>
+          </div>
+
+          <!-- Search Filter & Rule Counter -->
+          <div class="rules-filter-bar">
+            <input type="text" id="ruleSearchInput" class="search-input" placeholder="🔍 Search through active rules...">
+            <button id="dedupeRulesBtn" class="btn-subtle-sm">🧹 Remove Duplicates</button>
+          </div>
+
+          <!-- Active Rules Grid -->
+          <div class="domain-chips-container" id="rulesContainer">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECTION 2: 100+ MB/s SPEED BOOSTER             -->
+        <!-- ============================================== -->
+        <section id="speedSection" class="settings-card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🚀 100+ MB/s Gigabit Speed Booster Engine</h2>
+              <p class="card-desc">
+                Eliminate slow free VPN/proxy throttling. Use Cloudflare's Anycast Edge Network for native multi-gigabit speeds.
+              </p>
+            </div>
+            <div class="speed-pill">⚡ 100+ MB/s Capable</div>
+          </div>
+
+          <div class="feature-rows">
+            <!-- Feature 1: Speed Test Bypass Toggle -->
+            <div class="setting-toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Proxy Speed Tests (fast.com, speedtest.net)</div>
+                <div class="toggle-desc">
+                  When <strong>OFF (Recommended)</strong>: fast.com and speedtest.net use your DIRECT connection for 100% native speed.<br>
+                  When <strong>ON</strong>: fast.com is routed through the proxy so you can measure proxy throughput directly.
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="proxySpeedTestsToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Feature 2: High Bandwidth Media Bypass -->
+            <div class="setting-toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Bypass 4K Video &amp; Heavy CDN (YouTube, Netflix, Steam)</div>
+                <div class="toggle-desc">
+                  Keeps heavy streaming content on your direct native fiber connection so video never buffers or slows down.
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="bypassMediaToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Feature 3: Cloudflare Local Gigabit Edge Relay -->
+            <div class="relay-config-card">
+              <div class="relay-header">
+                <div class="relay-title-group">
+                  <span class="relay-badge">GIGABIT CORE</span>
+                  <h3 class="relay-h3">Cloudflare Anycast Local Edge Relay (127.0.0.1)</h3>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="localRelayToggle">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="relay-desc">
+                Connect your Chrome profile directly to Cloudflare's WebSocket Edge Relay (<code class="code-tag">/ws</code>) via local port.
+                Achieves <strong>100+ MB/s download speed</strong> with sub-25ms latency in Pakistan, UAE, Saudi Arabia, and Europe.
+              </p>
+              <div class="relay-inputs-grid">
+                <div class="input-col">
+                  <label class="input-label" for="localRelayHost">Local Relay Host:</label>
+                  <input type="text" id="localRelayHost" class="text-input" value="127.0.0.1">
+                </div>
+                <div class="input-col">
+                  <label class="input-label" for="localRelayPort">Port (v2rayN: 10808 / Dispatcher: 2080):</label>
+                  <input type="number" id="localRelayPort" class="text-input" value="10808">
+                </div>
+              </div>
+              <div class="relay-tip">
+                💡 <strong>Tip:</strong> If you use v2rayN on Windows or Sing-Box on Mac, import your subscription link (<code class="code-tag">/sub</code>) and enable this switch to route Chrome through Cloudflare Anycast at 100+ MB/s!
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECTION 3: AUTO-HEALING & FAILOVER             -->
+        <!-- ============================================== -->
+        <section id="autoHealSection" class="settings-card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🛡️ Autonomous Self-Healing &amp; Dead Proxy Pruning</h2>
+              <p class="card-desc">
+                Continuously tests proxies in the background. If a node fails or exceeds latency thresholds, it auto-switches to a healthy node in the same country.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-rows">
+            <div class="setting-toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Enable Real-Time Auto-Healing</div>
+                <div class="toggle-desc">
+                  Periodically queries the Cloudflare Worker live pool and auto-hot-swaps lagging proxies without freezing the browser.
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoHealToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Health Check Interval</div>
+                <div class="toggle-desc">
+                  Frequency of background socket verification and failover checks.
+                </div>
+              </div>
+              <select id="autoHealIntervalSelect" class="select-input">
+                <option value="3">Every 3 minutes (Aggressive)</option>
+                <option value="5" selected>Every 5 minutes (Recommended)</option>
+                <option value="10">Every 10 minutes (Balanced)</option>
+                <option value="15">Every 15 minutes (Lightweight)</option>
+              </select>
+            </div>
+
+            <div class="setting-toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Desktop Notifications on Auto-Switch</div>
+                <div class="toggle-desc">
+                  Show an alert whenever a congested proxy is swapped to a fresh healthy node.
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="healNotificationsToggle" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="action-box">
+              <button id="triggerImmediateHealBtn" class="btn-accent-lg">⚡ Trigger Immediate Self-Healing &amp; Prune Now</button>
+              <div id="healStatusText" class="heal-status-msg">Last healed: Just now • All 43 nodes verified healthy</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECTION 4: EDGE NODES & PROXIES                -->
+        <!-- ============================================== -->
+        <section id="nodesSection" class="settings-card hidden">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🌐 Active Proxy Pool &amp; Worker Connection</h2>
+              <p class="card-desc">
+                Cloudflare Worker API endpoints and live verified SOCKS5 proxy locations.
+              </p>
+            </div>
+            <button id="refreshNodesBtn" class="btn-subtle-sm">🔄 Refresh Live Pool</button>
+          </div>
+
+          <div class="feature-rows">
+            <div class="input-group-row">
+              <label class="input-label" for="workerHostInput">Cloudflare Worker Host URL:</label>
+              <div class="input-with-btn">
+                <input type="text" id="workerHostInput" class="text-input" value="gredge-network.grwebdevs5.workers.dev">
+                <button id="saveHostBtn" class="btn-primary-sm">Save Host</button>
+              </div>
+            </div>
+
+            <div class="live-nodes-table-wrapper">
+              <table class="nodes-table">
+                <thead>
+                  <tr>
+                    <th>Country / City</th>
+                    <th>Protocol</th>
+                    <th>Server IP</th>
+                    <th>Port</th>
+                    <th>Ping</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="nodesTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
