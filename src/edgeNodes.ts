@@ -224,11 +224,16 @@ export async function handleVlessWebSocket(request: Request, validUuid: string):
     serverWs.addEventListener('message', async (event) => {
       try {
         const data = event.data;
-        if (!(data instanceof ArrayBuffer)) {
+        let buffer: Uint8Array;
+        if (data instanceof ArrayBuffer) {
+          buffer = new Uint8Array(data);
+        } else if (ArrayBuffer.isView(data)) {
+          buffer = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+        } else if (typeof data === 'string') {
+          buffer = new TextEncoder().encode(data);
+        } else {
           return;
         }
-
-        const buffer = new Uint8Array(data);
 
         if (!isHeaderProcessed) {
           // Process VLESS header (minimum 18 bytes: 1 ver + 16 uuid + 1 proto + ...)

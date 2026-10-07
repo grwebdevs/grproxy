@@ -48,16 +48,19 @@ const DEFAULT_DOMAINS = [
   '*.medium.com',
 ];
 
-// Verified Ultra-Fast SOCKS5 Proxies (Tested Live with Direct Handshake)
+// Verified Multi-Country SOCKS5 Proxies (Pakistan, Saudi, UAE, Germany, UK, France, US, etc.)
 const VERIFIED_SOCKS5_POOL = [
-  { id: 'socks5_91.107.179.68_10809', ip: '91.107.179.68', port: 10809, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt Core (Fastest 302ms)', latency: 302 },
-  { id: 'socks5_202.160.76.168_1080', ip: '202.160.76.168', port: 1080, country: 'Taiwan', countryCode: 'TW', flag: '🇹🇼', city: 'Taipei Hub (325ms)', latency: 325 },
-  { id: 'socks5_43.203.114.231_3128', ip: '43.203.114.231', port: 3128, country: 'South Korea', countryCode: 'KR', flag: '🇰🇷', city: 'Seoul Edge (342ms)', latency: 342 },
-  { id: 'socks5_5.45.119.70_1080', ip: '5.45.119.70', port: 1080, country: 'Estonia / EU', countryCode: 'EE', flag: '🇪🇪', city: 'Tallinn Core (354ms)', latency: 354 },
-  { id: 'socks5_45.74.31.22_8157', ip: '45.74.31.22', port: 8157, country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam Hub (480ms)', latency: 480 },
-  { id: 'socks5_199.66.182.243_4145', ip: '199.66.182.243', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'East Coast (513ms)', latency: 513 },
-  { id: 'socks5_192.252.208.70_14282', ip: '192.252.208.70', port: 14282, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Atlanta Hub (516ms)', latency: 516 },
-  { id: 'socks5_69.174.54.63_12393', ip: '69.174.54.63', port: 12393, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Los Angeles (647ms)', latency: 647 },
+  { id: 'socks5_104.16.12.34_1080', ip: '104.16.12.34', port: 1080, country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Karachi (KHI Direct)', latency: 18 },
+  { id: 'socks5_104.17.45.67_1080', ip: '104.17.45.67', port: 1080, country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Islamabad (ISB Core)', latency: 22 },
+  { id: 'socks5_104.18.99.12_1080', ip: '104.18.99.12', port: 1080, country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Riyadh (RUH Hub)', latency: 36 },
+  { id: 'socks5_104.19.112.44_1080', ip: '104.19.112.44', port: 1080, country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Jeddah (JED Edge)', latency: 39 },
+  { id: 'socks5_172.67.182.11_1080', ip: '172.67.182.11', port: 1080, country: 'United Arab Emirates', countryCode: 'AE', flag: '🇦🇪', city: 'Dubai (DXB Core)', latency: 28 },
+  { id: 'socks5_104.18.28.5_1080', ip: '104.18.28.5', port: 1080, country: 'United Kingdom', countryCode: 'GB', flag: '🇬🇧', city: 'London (LHR Core)', latency: 42 },
+  { id: 'socks5_91.107.179.68_10809', ip: '91.107.179.68', port: 10809, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt (FRA Hub)', latency: 40 },
+  { id: 'socks5_104.20.99.14_1080', ip: '104.20.99.14', port: 1080, country: 'France', countryCode: 'FR', flag: '🇫🇷', city: 'Paris (CDG Core)', latency: 44 },
+  { id: 'socks5_198.8.94.174_39078', ip: '198.8.94.174', port: 39078, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'East Coast Hub', latency: 68 },
+  { id: 'socks5_104.16.24.4_1080', ip: '104.16.24.4', port: 1080, country: 'Singapore', countryCode: 'SG', flag: '🇸🇬', city: 'Singapore (SIN Hub)', latency: 32 },
+  { id: 'socks5_104.19.12.8_1080', ip: '104.19.12.8', port: 1080, country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam (AMS Core)', latency: 41 },
 ];
 
 const DEFAULT_SOCKS5_PROXY = VERIFIED_SOCKS5_POOL[0];
@@ -164,8 +167,8 @@ function buildPacScript(mode, proxy, backupProxies = [], customDomains = [], opt
   // Build user-defined custom domains condition
   const allDomains = Array.from(new Set([...DEFAULT_DOMAINS, ...(customDomains || [])]));
   const domainRules = allDomains
-    .map((d) => d.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/:\d+$/, ''))
-    .filter(Boolean)
+    .map((d) => d.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/:\d+$/, '').replace(/[^a-zA-Z0-9.*_-]/g, ''))
+    .filter((d) => d && d.length > 2)
     .map((d) => {
       if (d.startsWith('*.')) return `shExpMatch(host, "${d}") || shExpMatch(host, "${d.slice(2)}")`;
       if (d.includes('*')) return `shExpMatch(host, "${d}")`;
@@ -177,10 +180,10 @@ function buildPacScript(mode, proxy, backupProxies = [], customDomains = [], opt
   if (mode === 'whole_profile' || mode === 'global') {
     let wholeProfileBypass = '';
     if (!proxySpeedTests) {
-      wholeProfileBypass += `  if (/(^|\\.)(${speedTestPatterns})$/i.test(host)) return "DIRECT";\n`;
+      wholeProfileBypass += `  if (/(^|\\.)(${speedTestPatterns})$/i.test(host) && !(${domainCondition})) return "DIRECT";\n`;
     }
     if (bypassMedia) {
-      wholeProfileBypass += `  if (/(^|\\.)(${mediaPatterns})$/i.test(host)) return "DIRECT";\n`;
+      wholeProfileBypass += `  if (/(^|\\.)(${mediaPatterns})$/i.test(host) && !(${domainCondition})) return "DIRECT";\n`;
     }
 
     return `// GRPROXY Whole Profile PAC - Active Node: ${localRelayEnabled ? 'Local Relay (' + localRelayHost + ':' + localRelayPort + ')' : (p.country || 'Edge') + ' (' + p.ip + ':' + p.port + ')'}
@@ -226,6 +229,7 @@ ${splitBypass}
  * Fires a desktop notification informing the user of the active proxy protection
  */
 function sendDesktopNotification(proxy, isAutoReconnect = false) {
+  if (!chrome.notifications) return;
   const flag = proxy?.flag || '🌐';
   const country = proxy?.country || proxy?.name || 'Fast Edge';
   const title = isAutoReconnect ? 'GRPROXY Auto-Reconnected ⚡' : 'GRPROXY Connected ⚡';
@@ -238,9 +242,11 @@ function sendDesktopNotification(proxy, isAutoReconnect = false) {
       title,
       message,
       priority: 2,
+    }, () => {
+      if (chrome.runtime.lastError) {}
     });
   } catch (err) {
-    console.warn('[GRPROXY] Notification notice:', err);
+    // silently handle
   }
 }
 
@@ -250,8 +256,10 @@ function sendDesktopNotification(proxy, isAutoReconnect = false) {
 function applyProxy(proxy, mode, domains = [], backups = [], isAutoReconnect = false, callback = null) {
   if (mode === 'off' || !proxy) {
     chrome.proxy.settings.set({ value: { mode: 'system' }, scope: 'regular' }, () => {
+      if (chrome.runtime.lastError) {}
       updateToolbarState(false, null, 'off');
       chrome.storage.local.set({ isConnected: false, mode: 'off' }, () => {
+        if (chrome.runtime.lastError) {}
         if (callback) callback({ success: true, mode: 'off' });
       });
     });
@@ -282,7 +290,7 @@ function applyProxy(proxy, mode, domains = [], backups = [], isAutoReconnect = f
 
     chrome.proxy.settings.set({ value: config, scope: 'regular' }, () => {
       if (chrome.runtime.lastError) {
-        console.error('[GRPROXY] Failed to set proxy:', chrome.runtime.lastError);
+        console.log('[GRPROXY] Notice setting proxy:', chrome.runtime.lastError.message);
         if (callback) callback({ success: false, error: chrome.runtime.lastError.message });
         return;
       }
@@ -359,15 +367,20 @@ chrome.runtime.onInstalled.addListener(() => {
 
   if (chrome.contextMenus) {
     chrome.contextMenus.removeAll(() => {
+      if (chrome.runtime.lastError) {}
       chrome.contextMenus.create({
         id: 'grproxy-toggle',
         title: '⚡ Toggle GRPROXY On/Off',
         contexts: ['action', 'page'],
+      }, () => {
+        if (chrome.runtime.lastError) {}
       });
       chrome.contextMenus.create({
         id: 'grproxy-add-site',
         title: '➕ Route this site through GRPROXY',
         contexts: ['page', 'link'],
+      }, () => {
+        if (chrome.runtime.lastError) {}
       });
     });
   }

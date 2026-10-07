@@ -1,14 +1,12 @@
 {
   "manifest_version": 3,
   "name": "GRPROXY — High-Speed Cloudflare Edge & Telegram Proxy",
-  "version": "1.2.0",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAthMvFGe+ByTn6eRJHwnh4jr6hSjaNmt9Ptlcsg3Y7zdvYmfAtuq0KsHfN9kv+R9fCtGxGsAVLsiK9lSypbVuqR/532xvdL1aNKqwfZYvUXZ32lXn90Nqh5zoiw1LjF26Rrg9td9kG4ywj1va3qzfkTSzorwgVzc3qFWgCLoDSmpExvx901fNZJK5n8rg4hK2MfRoOGiOQqQ/MWMzix+kk1NvYLWuELKGar1LqBJk2wN2VlWwnoQJtUV8OmywQTM1Q/IyhVflpzU053JlLl06q0T6xkPSkrGTTIFKQwFyq+2rEXf4mSYZ7eB5wTWltpl70Er4POP5ZF6/i0c8W+l9ewIDAQAB",
+  "version": "1.2.2",
   "description": "Ultra-fast anti-censorship proxy with 100+ Cloudflare Anycast countries, verified SOCKS5, 100+ MB/s Gigabit Booster, and zero-speed-loss split routing.",
   "permissions": [
     "proxy",
     "storage",
     "tabs",
-    "unlimitedStorage",
     "notifications",
     "contextMenus",
     "alarms"
@@ -51,12 +49,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "popup.html",
-        "popup.js",
-        "popup.css",
-        "options.html",
-        "options.js",
-        "options.css",
         "icons/*"
       ],
       "matches": [

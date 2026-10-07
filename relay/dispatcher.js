@@ -16,7 +16,7 @@
 import net from 'net';
 
 const WORKER_URL = process.env.WORKER_URL || 'https://gredge-network.grwebdevs5.workers.dev';
-const LISTEN_PORT = parseInt(process.env.PORT || '1080', 10);
+const LISTEN_PORT = parseInt(process.env.PORT || '10808', 10);
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // Refresh pool every 10 min
 
 let upstreamPool = [];

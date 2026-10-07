@@ -3,169 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GRPROXY — High-Speed SOCKS5 Edge Proxy</title>
+  <title>GRPROXY — High-Speed Edge Proxy</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Top Minimalist Header -->
+    <!-- Header -->
     <header class="header">
       <div class="brand-group">
         <div class="brand-glyph">GR</div>
-        <div class="brand-info">
+        <div>
           <div class="brand-name">GRPROXY</div>
-          <div class="brand-tag">Cloudflare Edge</div>
+          <div class="brand-tag">Cloudflare Anycast Edge</div>
         </div>
       </div>
-      <div class="header-right-group">
+      <div class="header-right">
         <div id="statusBadge" class="status-badge disconnected">
           <span class="status-dot"></span>
           <span id="statusText">DIRECT</span>
         </div>
-        <button id="openSettingsBtn" class="settings-gear-btn" title="Open Settings &amp; Bulk Rules">⚙️</button>
+        <button id="openSettingsBtn" class="icon-btn" title="Open Settings & Bulk Import in Full Tab">⚙️</button>
       </div>
     </header>
 
-    <!-- Hero Touch Connection Card -->
-    <div class="hero-card">
-      <button id="mainToggleBtn" class="main-toggle-btn disconnected" title="Tap to Toggle Connection">
-        <div class="power-glow-ring"></div>
+    <!-- Main Power Card -->
+    <div class="power-card">
+      <button id="mainToggleBtn" class="main-toggle-btn disconnected" title="Click to Connect/Disconnect">
+        <div class="power-halo"></div>
         <div class="power-icon">⚡</div>
         <span id="btnLabel" class="btn-label">CONNECT</span>
       </button>
-      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown SOCKS5</div>
+      <div id="connectionSubtext" class="connection-subtext">Click to activate Zero-Slowdown Edge Protection</div>
 
-      <!-- Sleek Segmented Mode Selector (Touch Pills) -->
-      <div class="segmented-mode-bar">
-        <button id="modeSplitBtn" class="seg-btn active" data-mode="split" title="Smart Split: Telegram &amp; Added Links only • 0% speed loss for rest">
-          <span class="seg-icon">⚡</span>
-          <span class="seg-label">Smart Split</span>
+      <!-- Mode Selector Pills -->
+      <div class="mode-pills">
+        <button id="modeSplitBtn" class="mode-pill active" title="Smart Split: Telegram & Added Links protected. Native 100% speed for downloads.">
+          <span>⚡</span> Smart Split
         </button>
-        <button id="modeWholeBtn" class="seg-btn" data-mode="whole_profile" title="Whole Profile: Routes all traffic in active Chrome profile">
-          <span class="seg-icon">🌐</span>
-          <span class="seg-label">Whole Profile</span>
+        <button id="modeWholeBtn" class="mode-pill" title="Whole Profile: Routes all websites in active Chrome profile.">
+          <span>🌐</span> Whole Profile
         </button>
-        <button id="modeOffBtn" class="seg-btn mode-off" data-mode="off" title="Direct Connection: Proxy completely disabled">
-          <span class="seg-icon">⚪</span>
-          <span class="seg-label">Direct</span>
+        <button id="modeOffBtn" class="mode-pill mode-off" title="Direct Native Connection: Proxy OFF.">
+          <span>⚪</span> Direct
         </button>
       </div>
     </div>
 
-    <!-- Active Touch Location Card -->
-    <div class="touch-location-card" id="openDrawerTrigger" title="Click to choose from 100+ countries">
+    <!-- Country / Location Selector -->
+    <div class="location-card" id="openDrawerTrigger" title="Click to change country">
       <div class="location-left">
-        <span id="currentFlag" class="location-flag">🇺🇸</span>
-        <div class="location-details">
-          <div class="location-title-row">
-            <span id="currentCountryName" class="location-country">United States</span>
-          </div>
-          <div id="currentCity" class="location-city">Ashburn • SOCKS5</div>
+        <span id="currentFlag" class="country-flag-lg">🇵🇰</span>
+        <div class="location-meta">
+          <div id="currentCountryName" class="country-name-main">Pakistan</div>
+          <div id="currentCity" class="country-city-sub">Karachi (KHI Direct) • SOCKS5</div>
         </div>
       </div>
       <div class="location-right">
-        <span id="currentPing" class="ping-pill fast" title="Click to test ping">~42 ms</span>
-        <button id="copyProxyBtn" class="copy-icon-btn" title="Copy SOCKS5 IP:Port" onclick="event.stopPropagation();">📋</button>
+        <span id="currentPing" class="ping-tag ping-green">~18 ms</span>
+        <button id="copyProxyBtn" class="action-mini-btn" title="Copy SOCKS5 IP:Port">📋</button>
         <button id="toggleCountryDrawerBtn" class="chevron-btn">›</button>
       </div>
     </div>
 
-    <!-- Minimalist Micro-Stats Strip -->
-    <div class="stats-strip">
-      <div class="stat-item">
-        <span class="stat-dot green"></span>
-        <span class="stat-label">SPEED:</span>
-        <span id="telemetrySpeed" class="stat-val text-green">0% Loss</span>
+    <!-- Quick Action: Active Tab / Current Site -->
+    <div id="currentSiteBanner" class="quick-site-card hidden">
+      <div class="quick-site-left">
+        <span class="quick-tag">ACTIVE SITE</span>
+        <span id="currentSiteHost" class="quick-domain">web.telegram.org</span>
       </div>
-      <div class="stat-item">
-        <span class="stat-dot cyan"></span>
-        <span class="stat-label">HEALING:</span>
-        <span class="stat-val text-cyan">Continuous</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-dot purple"></span>
-        <span class="stat-label">CORE:</span>
-        <span class="stat-val text-purple">Gigabit</span>
-      </div>
+      <button id="addCurrentSiteBtn" class="quick-add-btn">+ Route Site</button>
     </div>
 
-    <!-- Collapsible Split Rules Drawer -->
-    <div class="rules-section">
-      <button id="toggleRulesBtn" class="rules-toggle-bar">
-        <div class="rules-toggle-left">
-          <span class="rules-icon">⚡</span>
-          <span>Split Rules &amp; Links (<span id="domainCount">18</span>)</span>
-        </div>
-        <span id="rulesArrow" class="rules-arrow">▾</span>
-      </button>
-
-      <div id="rulesDrawer" class="rules-drawer-body hidden">
-        <!-- Quick Add Active Tab Banner -->
-        <div id="currentSiteBanner" class="current-site-banner hidden">
-          <div class="current-site-left">
-            <span class="site-badge">CURRENT SITE</span>
-            <span id="currentSiteHost" class="site-host">web.telegram.org</span>
-          </div>
-          <button id="addCurrentSiteBtn" class="add-site-btn">+ Add to Rules</button>
-        </div>
-
-        <!-- Add Link Input -->
-        <div class="add-rule-row">
-          <input type="text" id="newDomainInput" placeholder="Paste URL or domain (e.g. fast.com, t.me)..." class="add-rule-input">
-          <button id="addDomainBtn" class="add-rule-btn">+ Add</button>
-        </div>
-
-        <!-- Rules Auxiliary Actions -->
-        <div class="rules-actions-row">
-          <button id="openSettingsFromRulesBtn" class="rules-aux-btn" title="Open full tab to bulk import links &amp; configure 100+ MB/s Booster">⚙️ Bulk Import in Settings</button>
-          <button id="resetDomainsBtn" class="rules-aux-btn" title="Reset rules to default Telegram &amp; social proxies">Reset Defaults</button>
-        </div>
-
-        <!-- Active Domains List -->
-        <div id="domainList" class="domain-list">
-          <!-- Populated via JS -->
-        </div>
+    <!-- Rules Management Bar (Clean 1-Click Link to Settings Page) -->
+    <div class="settings-nav-bar">
+      <div class="rules-summary">
+        <span class="rules-dot"></span>
+        <span>Split Rules: <strong id="domainCount">18</strong> Protected Sites</span>
       </div>
+      <button id="openSettingsFromRulesBtn" class="btn-open-rules">Manage &amp; Bulk Import ➔</button>
     </div>
 
-    <!-- Country Drawer (Modal / Slide-Up Sheet) -->
+    <!-- Country Selector Modal / Sheet -->
     <div id="countryDrawer" class="country-drawer hidden">
       <div class="drawer-header">
-        <div class="drawer-title-group">
-          <span class="drawer-title">100+ Cloudflare Edge Locations</span>
-          <span class="drawer-subtitle">Verified Ultra-Low Latency SOCKS5</span>
+        <div>
+          <div class="drawer-title">Select Edge Location</div>
+          <div class="drawer-desc">100+ Cloudflare Anycast Locations</div>
         </div>
-        <button id="closeDrawerBtn" class="close-drawer-btn">✕</button>
+        <button id="closeDrawerBtn" class="close-btn">✕</button>
       </div>
 
-      <div class="drawer-search-box">
-        <input type="text" id="countrySearchInput" placeholder="Search 100+ countries or cities..." class="drawer-search-input">
+      <div class="search-bar">
+        <input type="text" id="countrySearchInput" class="search-input" placeholder="Search countries (Pak, Saudi, UK, US)...">
       </div>
 
-      <div class="continent-tabs" id="continentTabs">
-        <button class="cont-tab active" data-continent="all">All</button>
-        <button class="cont-tab" data-continent="North America">Americas</button>
-        <button class="cont-tab" data-continent="Europe">Europe</button>
-        <button class="cont-tab" data-continent="Asia">Asia</button>
-        <button class="cont-tab" data-continent="Middle East">Mid East</button>
-        <button class="cont-tab" data-continent="Africa">Africa</button>
-        <button class="cont-tab" data-continent="Oceania">Oceania</button>
+      <div class="continent-pills" id="continentTabs">
+        <button class="cont-pill active" data-continent="all">All</button>
+        <button class="cont-pill" data-continent="Asia">Asia</button>
+        <button class="cont-pill" data-continent="Middle East">Mid East</button>
+        <button class="cont-pill" data-continent="Europe">Europe</button>
+        <button class="cont-pill" data-continent="North America">Americas</button>
       </div>
 
-      <div id="countryList" class="country-scroll-list">
-        <!-- Injected via JS -->
+      <div id="countryList" class="country-items-scroll">
+        <!-- Rendered dynamically -->
       </div>
     </div>
 
-    <!-- Clean Footer -->
+    <!-- Clean Minimal Footer -->
     <footer class="footer">
-      <span class="shortcut-pill"><kbd>Alt+Shift+P</kbd> Toggle</span>
-      <span class="footer-sep">•</span>
-      <a href="https://gredge-network.grwebdevs5.workers.dev" target="_blank" class="footer-link">Dashboard</a>
-      <span class="footer-sep">•</span>
-      <a href="https://gredge-network.grwebdevs5.workers.dev/rotate/tg" target="_blank" class="footer-link">TG Connect</a>
-      <span class="footer-sep">•</span>
-      <span class="footer-v">v1.2</span>
+      <span><kbd>Alt+Shift+P</kbd> Toggle</span>
+      <span>•</span>
+      <a href="https://gredge-network.grwebdevs5.workers.dev" target="_blank">Cloudflare Edge</a>
+      <span>•</span>
+      <span>v1.2.2</span>
     </footer>
   </div>
 

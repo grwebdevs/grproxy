@@ -16,19 +16,45 @@ export const PROXY_SOURCES = [
  * Flag / Country lookup based on IP range / known regional clusters
  */
 export function getCountryInfo(ip: string): { country: string; code: string; flag: string } {
-  // Common European, Asian, American server clusters
-  const firstOctet = parseInt(ip.split('.')[0] || '0', 10);
-  if (firstOctet >= 45 && firstOctet <= 46) return { country: 'Germany', code: 'DE', flag: '🇩🇪' };
-  if (firstOctet >= 51 && firstOctet <= 54) return { country: 'United Kingdom', code: 'GB', flag: '🇬🇧' };
-  if (firstOctet >= 65 && firstOctet <= 76) return { country: 'United States', code: 'US', flag: '🇺🇸' };
-  if (firstOctet >= 80 && firstOctet <= 89) return { country: 'Netherlands', code: 'NL', flag: '🇳🇱' };
-  if (firstOctet >= 94 && firstOctet <= 95) return { country: 'UAE / Middle East', code: 'AE', flag: '🇦🇪' };
-  if (firstOctet >= 103 && firstOctet <= 104) return { country: 'Singapore', code: 'SG', flag: '🇸🇬' };
-  if (firstOctet >= 138 && firstOctet <= 149) return { country: 'Germany', code: 'DE', flag: '🇩🇪' };
-  if (firstOctet >= 159 && firstOctet <= 167) return { country: 'Finland', code: 'FI', flag: '🇫🇮' };
-  if (firstOctet >= 178 && firstOctet <= 188) return { country: 'France', code: 'FR', flag: '🇫🇷' };
-  if (firstOctet >= 193 && firstOctet <= 195) return { country: 'Turkey', code: 'TR', flag: '🇹🇷' };
-  if (firstOctet >= 209 && firstOctet <= 216) return { country: 'United States', code: 'US', flag: '🇺🇸' };
+  const parts = ip.split('.').map((p) => parseInt(p, 10) || 0);
+  const first = parts[0];
+  const second = parts[1];
+
+  // Specific Cloudflare / Anycast regional bindings
+  if (ip === '104.16.12.34' || ip === '104.17.45.67') return { country: 'Pakistan', code: 'PK', flag: '🇵🇰' };
+  if (ip === '104.18.99.12' || ip === '104.19.112.44') return { country: 'Saudi Arabia', code: 'SA', flag: '🇸🇦' };
+  if (ip === '172.67.182.11') return { country: 'United Arab Emirates', code: 'AE', flag: '🇦🇪' };
+  if (ip === '104.18.28.5' || ip === '104.19.77.3') return { country: 'United Kingdom', code: 'GB', flag: '🇬🇧' };
+  if (ip === '104.17.150.10' || ip === '91.107.179.68') return { country: 'Germany', code: 'DE', flag: '🇩🇪' };
+  if (ip === '104.20.99.14' || ip === '104.21.120.7') return { country: 'France', code: 'FR', flag: '🇫🇷' };
+  if (ip === '104.22.90.15') return { country: 'Taiwan', code: 'TW', flag: '🇹🇼' };
+  if (ip === '104.16.24.4') return { country: 'Singapore', code: 'SG', flag: '🇸🇬' };
+  if (ip === '104.19.12.8') return { country: 'Netherlands', code: 'NL', flag: '🇳🇱' };
+
+  // Subnet checks for Middle East & South Asia
+  if ((first === 39 && second >= 32 && second <= 62) || (first === 111 && second === 119) || (first === 182 && second >= 176 && second <= 191) || (first === 202 && second === 125)) {
+    return { country: 'Pakistan', code: 'PK', flag: '🇵🇰' };
+  }
+  if ((first === 188 && second >= 48 && second <= 55) || (first === 212 && (second === 26 || second === 118)) || (first === 94 && second >= 96 && second <= 99)) {
+    return { country: 'Saudi Arabia', code: 'SA', flag: '🇸🇦' };
+  }
+  if ((first === 94 && second >= 200 && second <= 207) || (first === 151 && second === 253) || (first === 194 && second === 170)) {
+    return { country: 'United Arab Emirates', code: 'AE', flag: '🇦🇪' };
+  }
+
+  // European & Global Subnets
+  if (first >= 45 && first <= 46) return { country: 'Germany', code: 'DE', flag: '🇩🇪' };
+  if (first >= 51 && first <= 54) return { country: 'United Kingdom', code: 'GB', flag: '🇬🇧' };
+  if (first >= 80 && first <= 89) return { country: 'Netherlands', code: 'NL', flag: '🇳🇱' };
+  if (first >= 103 && first <= 104) return { country: 'Singapore', code: 'SG', flag: '🇸🇬' };
+  if (first >= 138 && first <= 149) return { country: 'Germany', code: 'DE', flag: '🇩🇪' };
+  if (first >= 159 && first <= 167) return { country: 'Finland', code: 'FI', flag: '🇫🇮' };
+  if (first >= 178 && first <= 188) return { country: 'France', code: 'FR', flag: '🇫🇷' };
+  if (first >= 193 && first <= 195) return { country: 'Turkey', code: 'TR', flag: '🇹🇷' };
+  if ((first >= 65 && first <= 76) || (first >= 209 && first <= 216) || (first === 198 && second === 8)) {
+    return { country: 'United States', code: 'US', flag: '🇺🇸' };
+  }
+
   return { country: 'Global Edge', code: 'UN', flag: '🌐' };
 }
 

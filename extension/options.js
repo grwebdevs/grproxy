@@ -267,7 +267,7 @@ function saveRulesToStorage() {
 function notifyBackgroundReapply() {
   chrome.runtime.sendMessage({ action: 'REAPPLY_PROXY' }, (res) => {
     if (chrome.runtime.lastError) {
-      console.warn('[GRPROXY Settings] Reapply warning:', chrome.runtime.lastError);
+      console.log('[GRPROXY Settings] Reapply note:', chrome.runtime.lastError.message);
     }
   });
 }
@@ -516,7 +516,7 @@ async function triggerImmediateHeal() {
       showToast('Pool refreshed');
     }
   } catch (err) {
-    console.warn('[GRPROXY Settings] Manual heal request error:', err);
+    console.log('[GRPROXY Settings] Manual heal request note:', err);
     if (healStatusText) healStatusText.innerText = 'Health check completed via background task.';
     showToast('Heal request dispatched');
   } finally {
