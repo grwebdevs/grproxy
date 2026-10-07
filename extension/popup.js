@@ -5,18 +5,17 @@
 
 // Top Curated Multi-Country Locations (Verified Cloudflare Edge & Clean SOCKS5)
 const INITIAL_LOCATIONS = [
-  { id: 'socks5_104.16.12.34_1080', name: 'Pakistan (Karachi Direct)', country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Karachi (KHI Direct)', continent: 'Asia', ip: '104.16.12.34', port: 1080, pingEstimate: 18, protocol: 'socks5' },
-  { id: 'socks5_104.17.45.67_1080', name: 'Pakistan (Islamabad Hub)', country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Islamabad (ISB Core)', continent: 'Asia', ip: '104.17.45.67', port: 1080, pingEstimate: 22, protocol: 'socks5' },
-  { id: 'socks5_104.18.99.12_1080', name: 'Saudi Arabia (Riyadh)', country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Riyadh (RUH Hub)', continent: 'Middle East', ip: '104.18.99.12', port: 1080, pingEstimate: 36, protocol: 'socks5' },
-  { id: 'socks5_104.19.112.44_1080', name: 'Saudi Arabia (Jeddah)', country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Jeddah (JED Edge)', continent: 'Middle East', ip: '104.19.112.44', port: 1080, pingEstimate: 39, protocol: 'socks5' },
-  { id: 'socks5_172.67.182.11_1080', name: 'UAE (Dubai Anycast)', country: 'United Arab Emirates', countryCode: 'AE', flag: '🇦🇪', city: 'Dubai (DXB Core)', continent: 'Middle East', ip: '172.67.182.11', port: 1080, pingEstimate: 28, protocol: 'socks5' },
-  { id: 'socks5_104.18.28.5_1080', name: 'United Kingdom (London)', country: 'United Kingdom', countryCode: 'GB', flag: '🇬🇧', city: 'London (LHR Core)', continent: 'Europe', ip: '104.18.28.5', port: 1080, pingEstimate: 42, protocol: 'socks5' },
-  { id: 'socks5_91.107.179.68_10809', name: 'Germany (Frankfurt Core)', country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt (FRA Hub)', continent: 'Europe', ip: '91.107.179.68', port: 10809, pingEstimate: 40, protocol: 'socks5' },
-  { id: 'socks5_104.20.99.14_1080', name: 'France (Paris Anycast)', country: 'France', countryCode: 'FR', flag: '🇫🇷', city: 'Paris (CDG Core)', continent: 'Europe', ip: '104.20.99.14', port: 1080, pingEstimate: 44, protocol: 'socks5' },
-  { id: 'socks5_198.8.94.174_39078', name: 'United States (East Coast)', country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'East Coast Hub', continent: 'North America', ip: '198.8.94.174', port: 39078, pingEstimate: 68, protocol: 'socks5' },
-  { id: 'socks5_104.16.24.4_1080', name: 'Singapore (Asia Hub)', country: 'Singapore', countryCode: 'SG', flag: '🇸🇬', city: 'Singapore (SIN Hub)', continent: 'Asia', ip: '104.16.24.4', port: 1080, pingEstimate: 32, protocol: 'socks5' },
-  { id: 'socks5_104.22.90.15_1080', name: 'Taiwan (Taipei Hub)', country: 'Taiwan', countryCode: 'TW', flag: '🇹🇼', city: 'Taipei (TPE Core)', continent: 'Asia', ip: '104.22.90.15', port: 1080, pingEstimate: 45, protocol: 'socks5' },
-  { id: 'socks5_104.19.12.8_1080', name: 'Netherlands (Amsterdam)', country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam (AMS Core)', continent: 'Europe', ip: '104.19.12.8', port: 1080, pingEstimate: 41, protocol: 'socks5' },
+  { id: 'socks5_148.251.68.232_8888', name: 'Germany (Falkenstein)', country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Falkenstein Hub', continent: 'Europe', ip: '148.251.68.232', port: 8888, pingEstimate: 288, protocol: 'socks5' },
+  { id: 'socks5_94.156.114.45_1080', name: 'Germany (Frankfurt Core)', country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt Hub', continent: 'Europe', ip: '94.156.114.45', port: 1080, pingEstimate: 320, protocol: 'socks5' },
+  { id: 'socks5_2.56.3.159_1080', name: 'Finland (Helsinki Hub)', country: 'Finland', countryCode: 'FI', flag: '🇫🇮', city: 'Helsinki Hub', continent: 'Europe', ip: '2.56.3.159', port: 1080, pingEstimate: 357, protocol: 'socks5' },
+  { id: 'socks5_213.199.47.140_1080', name: 'France (Paris Hub)', country: 'France', countryCode: 'FR', flag: '🇫🇷', city: 'Paris Hub', continent: 'Europe', ip: '213.199.47.140', port: 1080, pingEstimate: 390, protocol: 'socks5' },
+  { id: 'socks5_45.74.31.25_9540', name: 'Netherlands (Amsterdam)', country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam Hub', continent: 'Europe', ip: '45.74.31.25', port: 9540, pingEstimate: 449, protocol: 'socks5' },
+  { id: 'socks5_144.24.111.128_1088', name: 'India (Mumbai Hub)', country: 'India', countryCode: 'IN', flag: '🇮🇳', city: 'Mumbai Hub', continent: 'Asia', ip: '144.24.111.128', port: 1088, pingEstimate: 452, protocol: 'socks5' },
+  { id: 'socks5_103.88.234.239_40016', name: 'Pakistan (Karachi Core)', country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Karachi Hub', continent: 'Asia', ip: '103.88.234.239', port: 40016, pingEstimate: 524, protocol: 'socks5' },
+  { id: 'socks5_192.111.130.5_17002', name: 'United States (Atlanta Hub)', country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Atlanta Hub', continent: 'North America', ip: '192.111.130.5', port: 17002, pingEstimate: 543, protocol: 'socks5' },
+  { id: 'socks5_184.178.172.23_4145', name: 'United States (Roanoke)', country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Roanoke Hub', continent: 'North America', ip: '184.178.172.23', port: 4145, pingEstimate: 580, protocol: 'socks5' },
+  { id: 'socks5_199.116.114.11_4145', name: 'United States (Los Angeles)', country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Los Angeles Hub', continent: 'North America', ip: '199.116.114.11', port: 4145, pingEstimate: 607, protocol: 'socks5' },
+  { id: 'socks5_140.238.43.53_54322', name: 'Japan (Tokyo Hub)', country: 'Japan', countryCode: 'JP', flag: '🇯🇵', city: 'Tokyo Hub', continent: 'Asia', ip: '140.238.43.53', port: 54322, pingEstimate: 620, protocol: 'socks5' },
 ];
 
 const DEFAULT_DOMAINS = [
@@ -134,22 +133,27 @@ function detectCurrentTab() {
 }
 
 function init() {
-  chrome.runtime.sendMessage({ action: 'GET_STATUS' }, (res) => {
-    if (chrome.runtime.lastError) {}
-    if (res && res.success && res.data) {
-      const d = res.data;
-      if (d.isConnected !== undefined) state.isConnected = d.isConnected;
-      if (d.mode) state.mode = d.mode;
-      if (d.selectedNodeId) state.selectedNodeId = d.selectedNodeId;
-      if (d.selectedProxy) state.selectedProxy = d.selectedProxy;
-      if (d.workerHost) state.workerHost = d.workerHost;
-      if (d.customDomains && Array.isArray(d.customDomains)) state.customDomains = d.customDomains;
-    }
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage({ action: 'GET_STATUS' }, (res) => {
+      if (chrome.runtime.lastError) {}
+      if (res && res.success && res.data) {
+        const d = res.data;
+        if (d.isConnected !== undefined) state.isConnected = d.isConnected;
+        if (d.mode) state.mode = d.mode;
+        if (d.selectedNodeId) state.selectedNodeId = d.selectedNodeId;
+        if (d.selectedProxy) state.selectedProxy = d.selectedProxy;
+        if (d.workerHost) state.workerHost = d.workerHost;
+        if (d.customDomains && Array.isArray(d.customDomains)) state.customDomains = d.customDomains;
+      }
+      updateUI();
+      renderCountries();
+      fetchLiveEdgeNodesAndProxies();
+      detectCurrentTab();
+    });
+  } else {
     updateUI();
     renderCountries();
-    fetchLiveEdgeNodesAndProxies();
-    detectCurrentTab();
-  });
+  }
 }
 
 function updateUI() {
@@ -317,7 +321,9 @@ function selectCountry(id) {
   if (target) {
     state.selectedNodeId = id;
     state.selectedProxy = target;
-    chrome.storage.local.set({ selectedNodeId: id, selectedProxy: target });
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ selectedNodeId: id, selectedProxy: target });
+    }
   }
   updateUI();
   renderCountries();

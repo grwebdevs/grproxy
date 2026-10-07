@@ -30,11 +30,14 @@ let stats = {
 
 // Fallback seed proxies if worker is temporarily unreachable
 const SEED_PROXIES = [
-  { ip: '84.17.45.92', port: 1080, country: 'Netherlands', flag: '🇳🇱', latency: 37 },
-  { ip: '144.76.107.55', port: 1080, country: 'Germany', flag: '🇩🇪', latency: 41 },
-  { ip: '46.4.103.12', port: 1080, country: 'Germany', flag: '🇩🇪', latency: 43 },
-  { ip: '94.130.180.201', port: 1080, country: 'Germany', flag: '🇩🇪', latency: 44 },
-  { ip: '174.75.211.193', port: 4145, country: 'United States', flag: '🇺🇸', latency: 49 },
+  { ip: '148.251.68.232', port: 8888, country: 'Germany', flag: '🇩🇪', latency: 288 },
+  { ip: '94.156.114.45', port: 1080, country: 'Germany', flag: '🇩🇪', latency: 320 },
+  { ip: '2.56.3.159', port: 1080, country: 'Finland', flag: '🇫🇮', latency: 357 },
+  { ip: '213.199.47.140', port: 1080, country: 'France', flag: '🇫🇷', latency: 390 },
+  { ip: '144.24.111.128', port: 1088, country: 'India', flag: '🇮🇳', latency: 452 },
+  { ip: '103.88.234.239', port: 40016, country: 'Pakistan', flag: '🇵🇰', latency: 524 },
+  { ip: '192.111.130.5', port: 17002, country: 'United States', flag: '🇺🇸', latency: 543 },
+  { ip: '184.178.172.23', port: 4145, country: 'United States', flag: '🇺🇸', latency: 580 },
 ];
 
 /**

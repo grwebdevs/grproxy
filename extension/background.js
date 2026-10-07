@@ -48,19 +48,21 @@ const DEFAULT_DOMAINS = [
   '*.medium.com',
 ];
 
-// Verified Multi-Country SOCKS5 Proxies (Pakistan, Saudi, UAE, Germany, UK, France, US, etc.)
+// Verified Multi-Country SOCKS5 Proxies (Tested Live SOCKS5 Handshakes)
 const VERIFIED_SOCKS5_POOL = [
-  { id: 'socks5_104.16.12.34_1080', ip: '104.16.12.34', port: 1080, country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Karachi (KHI Direct)', latency: 18 },
-  { id: 'socks5_104.17.45.67_1080', ip: '104.17.45.67', port: 1080, country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Islamabad (ISB Core)', latency: 22 },
-  { id: 'socks5_104.18.99.12_1080', ip: '104.18.99.12', port: 1080, country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Riyadh (RUH Hub)', latency: 36 },
-  { id: 'socks5_104.19.112.44_1080', ip: '104.19.112.44', port: 1080, country: 'Saudi Arabia', countryCode: 'SA', flag: '🇸🇦', city: 'Jeddah (JED Edge)', latency: 39 },
-  { id: 'socks5_172.67.182.11_1080', ip: '172.67.182.11', port: 1080, country: 'United Arab Emirates', countryCode: 'AE', flag: '🇦🇪', city: 'Dubai (DXB Core)', latency: 28 },
-  { id: 'socks5_104.18.28.5_1080', ip: '104.18.28.5', port: 1080, country: 'United Kingdom', countryCode: 'GB', flag: '🇬🇧', city: 'London (LHR Core)', latency: 42 },
-  { id: 'socks5_91.107.179.68_10809', ip: '91.107.179.68', port: 10809, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt (FRA Hub)', latency: 40 },
-  { id: 'socks5_104.20.99.14_1080', ip: '104.20.99.14', port: 1080, country: 'France', countryCode: 'FR', flag: '🇫🇷', city: 'Paris (CDG Core)', latency: 44 },
-  { id: 'socks5_198.8.94.174_39078', ip: '198.8.94.174', port: 39078, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'East Coast Hub', latency: 68 },
-  { id: 'socks5_104.16.24.4_1080', ip: '104.16.24.4', port: 1080, country: 'Singapore', countryCode: 'SG', flag: '🇸🇬', city: 'Singapore (SIN Hub)', latency: 32 },
-  { id: 'socks5_104.19.12.8_1080', ip: '104.19.12.8', port: 1080, country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam (AMS Core)', latency: 41 },
+  { id: 'socks5_148.251.68.232_8888', ip: '148.251.68.232', port: 8888, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Falkenstein Hub', latency: 288 },
+  { id: 'socks5_94.156.114.45_1080', ip: '94.156.114.45', port: 1080, country: 'Germany', countryCode: 'DE', flag: '🇩🇪', city: 'Frankfurt Hub', latency: 320 },
+  { id: 'socks5_2.56.3.159_1080', ip: '2.56.3.159', port: 1080, country: 'Finland', countryCode: 'FI', flag: '🇫🇮', city: 'Helsinki Hub', latency: 357 },
+  { id: 'socks5_65.109.215.187_8090', ip: '65.109.215.187', port: 8090, country: 'Finland', countryCode: 'FI', flag: '🇫🇮', city: 'Helsinki Core', latency: 446 },
+  { id: 'socks5_213.199.47.140_1080', ip: '213.199.47.140', port: 1080, country: 'France', countryCode: 'FR', flag: '🇫🇷', city: 'Paris Hub', latency: 390 },
+  { id: 'socks5_45.74.31.25_9540', ip: '45.74.31.25', port: 9540, country: 'Netherlands', countryCode: 'NL', flag: '🇳🇱', city: 'Amsterdam Hub', latency: 449 },
+  { id: 'socks5_144.24.111.128_1088', ip: '144.24.111.128', port: 1088, country: 'India', countryCode: 'IN', flag: '🇮🇳', city: 'Mumbai Hub', latency: 452 },
+  { id: 'socks5_103.88.234.239_40016', ip: '103.88.234.239', port: 40016, country: 'Pakistan', countryCode: 'PK', flag: '🇵🇰', city: 'Karachi Hub', latency: 524 },
+  { id: 'socks5_192.111.130.5_17002', ip: '192.111.130.5', port: 17002, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Atlanta Hub', latency: 543 },
+  { id: 'socks5_184.178.172.23_4145', ip: '184.178.172.23', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Roanoke Hub', latency: 580 },
+  { id: 'socks5_192.111.134.10_4145', ip: '192.111.134.10', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Dallas Hub', latency: 571 },
+  { id: 'socks5_199.116.114.11_4145', ip: '199.116.114.11', port: 4145, country: 'United States', countryCode: 'US', flag: '🇺🇸', city: 'Los Angeles Hub', latency: 607 },
+  { id: 'socks5_140.238.43.53_54322', ip: '140.238.43.53', port: 54322, country: 'Japan', countryCode: 'JP', flag: '🇯🇵', city: 'Tokyo Hub', latency: 620 },
 ];
 
 const DEFAULT_SOCKS5_PROXY = VERIFIED_SOCKS5_POOL[0];

@@ -42,6 +42,41 @@ const state = {
   mode: 'split',
 };
 
+// Safe storage access helpers (graceful fallback if chrome.storage is not ready)
+function getStorage(keys, callback) {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(keys, (res) => {
+      callback(res || {});
+    });
+  } else {
+    try {
+      const data = {};
+      keys.forEach((k) => {
+        const val = localStorage.getItem('grproxy_' + k);
+        if (val !== null) {
+          try { data[k] = JSON.parse(val); } catch { data[k] = val; }
+        }
+      });
+      callback(data);
+    } catch {
+      callback({});
+    }
+  }
+}
+
+function setStorage(items, callback) {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.set(items, callback);
+  } else {
+    try {
+      Object.entries(items).forEach(([k, v]) => {
+        localStorage.setItem('grproxy_' + k, JSON.stringify(v));
+      });
+    } catch {}
+    if (callback) callback();
+  }
+}
+
 // DOM Elements
 const navTabs = document.querySelectorAll('.nav-tab');
 const sections = {
@@ -256,7 +291,7 @@ function removeDomain(domain) {
  * Saves rules array to storage and notifies background to re-apply proxy PAC
  */
 function saveRulesToStorage() {
-  chrome.storage.local.set({ customDomains: state.customDomains }, () => {
+  setStorage({ customDomains: state.customDomains }, () => {
     notifyBackgroundReapply();
   });
 }
@@ -265,11 +300,11 @@ function saveRulesToStorage() {
  * Signals background worker to re-apply active PAC configuration with updated rules
  */
 function notifyBackgroundReapply() {
-  chrome.runtime.sendMessage({ action: 'REAPPLY_PROXY' }, (res) => {
-    if (chrome.runtime.lastError) {
-      console.log('[GRPROXY Settings] Reapply note:', chrome.runtime.lastError.message);
-    }
-  });
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage({ action: 'REAPPLY_PROXY' }, () => {
+      if (chrome.runtime.lastError) {}
+    });
+  }
 }
 
 /**
@@ -380,7 +415,7 @@ function handleClearCustom() {
  * Loads all settings from chrome.storage.local
  */
 function loadAllSettings() {
-  chrome.storage.local.get([
+  getStorage([
     'customDomains',
     'proxySpeedTests',
     'bypassMedia',
@@ -446,7 +481,7 @@ function saveAllSettings() {
   state.healNotificationsEnabled = healNotificationsToggle ? healNotificationsToggle.checked : true;
   state.workerHost = workerHostInput ? workerHostInput.value.trim() || DEFAULT_WORKER_HOST : DEFAULT_WORKER_HOST;
 
-  chrome.storage.local.set({
+  setStorage({
     customDomains: state.customDomains,
     proxySpeedTests: state.proxySpeedTests,
     bypassMedia: state.bypassMedia,
@@ -459,7 +494,7 @@ function saveAllSettings() {
     workerHost: state.workerHost,
   }, () => {
     // Also update periodic alarm interval if needed
-    if (chrome.alarms) {
+    if (typeof chrome !== 'undefined' && chrome.alarms) {
       chrome.alarms.create('grproxy-auto-heal', { periodInMinutes: state.autoHealInterval });
     }
     notifyBackgroundReapply();
@@ -681,7 +716,7 @@ function initEvents() {
   // Auto-save toggle states on immediate click for seamless UX
   if (proxySpeedTestsToggle) {
     proxySpeedTestsToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ proxySpeedTests: proxySpeedTestsToggle.checked }, () => {
+      setStorage({ proxySpeedTests: proxySpeedTestsToggle.checked }, () => {
         notifyBackgroundReapply();
         showToast(proxySpeedTestsToggle.checked ? 'Speed tests will now route through proxy' : 'Speed tests will use direct native connection');
       });
@@ -690,7 +725,7 @@ function initEvents() {
 
   if (bypassMediaToggle) {
     bypassMediaToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ bypassMedia: bypassMediaToggle.checked }, () => {
+      setStorage({ bypassMedia: bypassMediaToggle.checked }, () => {
         notifyBackgroundReapply();
         showToast(bypassMediaToggle.checked ? 'Heavy 4K streaming bypass enabled' : 'Heavy 4K streaming bypass disabled');
       });
@@ -699,7 +734,7 @@ function initEvents() {
 
   if (localRelayToggle) {
     localRelayToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ localRelayEnabled: localRelayToggle.checked }, () => {
+      setStorage({ localRelayEnabled: localRelayToggle.checked }, () => {
         notifyBackgroundReapply();
         showToast(localRelayToggle.checked ? '⚡ 100+ MB/s Cloudflare Gigabit Relay Activated!' : 'Standard Anycast Proxy Activated');
       });
@@ -708,7 +743,7 @@ function initEvents() {
 
   if (autoHealToggle) {
     autoHealToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ autoHealEnabled: autoHealToggle.checked }, () => {
+      setStorage({ autoHealEnabled: autoHealToggle.checked }, () => {
         showToast(autoHealToggle.checked ? 'Auto-healing monitor enabled' : 'Auto-healing monitor disabled');
       });
     });
@@ -717,8 +752,8 @@ function initEvents() {
   if (autoHealIntervalSelect) {
     autoHealIntervalSelect.addEventListener('change', () => {
       const mins = parseInt(autoHealIntervalSelect.value, 10) || 5;
-      chrome.storage.local.set({ autoHealInterval: mins }, () => {
-        if (chrome.alarms) {
+      setStorage({ autoHealInterval: mins }, () => {
+        if (typeof chrome !== 'undefined' && chrome.alarms) {
           chrome.alarms.create('grproxy-auto-heal', { periodInMinutes: mins });
         }
         showToast(`Auto-heal check frequency updated to ${mins} minutes`);
@@ -728,7 +763,7 @@ function initEvents() {
 
   if (healNotificationsToggle) {
     healNotificationsToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ healNotificationsEnabled: healNotificationsToggle.checked }, () => {
+      setStorage({ healNotificationsEnabled: healNotificationsToggle.checked }, () => {
         showToast(healNotificationsToggle.checked ? 'Desktop alerts enabled on auto-heal' : 'Desktop alerts muted');
       });
     });

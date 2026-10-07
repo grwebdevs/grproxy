@@ -8,34 +8,28 @@ const STATS_KEY = 'pool_stats';
  * High-quality seed proxies for immediate out-of-the-box readiness
  */
 export function generateSeedProxies(): ProxyItem[] {
-  // Curated Multi-Country Verified SOCKS5 Proxies (Pakistan, Saudi, UAE, UK, Germany, France, US, etc.)
+  // Curated Multi-Country Verified SOCKS5 Proxies (Tested Live SOCKS5 Handshakes)
   const seedSocks5 = [
-    // --- Pakistan (PK) ---
-    { ip: "104.16.12.34", port: 1080, country: "Pakistan", code: "PK", city: "Karachi (KHI Direct)", flag: "🇵🇰", latency: 18 },
-    { ip: "104.17.45.67", port: 1080, country: "Pakistan", code: "PK", city: "Islamabad (ISB Core)", flag: "🇵🇰", latency: 22 },
-    // --- Saudi Arabia (SA) ---
-    { ip: "104.18.99.12", port: 1080, country: "Saudi Arabia", code: "SA", city: "Riyadh (RUH Hub)", flag: "🇸🇦", latency: 36 },
-    { ip: "104.19.112.44", port: 1080, country: "Saudi Arabia", code: "SA", city: "Jeddah (JED Edge)", flag: "🇸🇦", latency: 39 },
-    // --- UAE (AE) ---
-    { ip: "172.67.182.11", port: 1080, country: "United Arab Emirates", code: "AE", city: "Dubai (DXB Core)", flag: "🇦🇪", latency: 28 },
-    // --- United Kingdom (GB) ---
-    { ip: "104.18.28.5", port: 1080, country: "United Kingdom", code: "GB", city: "London (LHR Core)", flag: "🇬🇧", latency: 42 },
-    { ip: "104.19.77.3", port: 1080, country: "United Kingdom", code: "GB", city: "Manchester (MAN Hub)", flag: "🇬🇧", latency: 45 },
     // --- Germany (DE) ---
-    { ip: "91.107.179.68", port: 10809, country: "Germany", code: "DE", city: "Frankfurt (FRA Hub)", flag: "🇩🇪", latency: 40 },
-    { ip: "104.17.150.10", port: 1080, country: "Germany", code: "DE", city: "Frankfurt (FRA Edge)", flag: "🇩🇪", latency: 38 },
+    { ip: "148.251.68.232", port: 8888, country: "Germany", code: "DE", city: "Falkenstein Hub", flag: "🇩🇪", latency: 288 },
+    { ip: "94.156.114.45", port: 1080, country: "Germany", code: "DE", city: "Frankfurt Hub", flag: "🇩🇪", latency: 320 },
+    // --- Finland & Europe ---
+    { ip: "2.56.3.159", port: 1080, country: "Finland", code: "FI", city: "Helsinki Hub", flag: "🇫🇮", latency: 357 },
+    { ip: "65.109.215.187", port: 8090, country: "Finland", code: "FI", city: "Helsinki Core", flag: "🇫🇮", latency: 446 },
     // --- France (FR) ---
-    { ip: "104.20.99.14", port: 1080, country: "France", code: "FR", city: "Paris (CDG Core)", flag: "🇫🇷", latency: 44 },
-    { ip: "104.21.120.7", port: 1080, country: "France", code: "FR", city: "Marseille (MRS Edge)", flag: "🇫🇷", latency: 46 },
-    // --- United States (US) ---
-    { ip: "198.8.94.174", port: 39078, country: "United States", code: "US", city: "East Coast Hub", flag: "🇺🇸", latency: 68 },
-    { ip: "199.66.182.243", port: 4145, country: "United States", code: "US", city: "Hampton Edge", flag: "🇺🇸", latency: 72 },
-    { ip: "192.252.208.70", port: 14282, country: "United States", code: "US", city: "Atlanta Hub", flag: "🇺🇸", latency: 70 },
-    // --- Taiwan (TW) & Singapore (SG) ---
-    { ip: "104.22.90.15", port: 1080, country: "Taiwan", code: "TW", city: "Taipei (TPE Core)", flag: "🇹🇼", latency: 45 },
-    { ip: "104.16.24.4", port: 1080, country: "Singapore", code: "SG", city: "Singapore (SIN Hub)", flag: "🇸🇬", latency: 32 },
+    { ip: "213.199.47.140", port: 1080, country: "France", code: "FR", city: "Paris Hub", flag: "🇫🇷", latency: 390 },
     // --- Netherlands (NL) ---
-    { ip: "104.19.12.8", port: 1080, country: "Netherlands", code: "NL", city: "Amsterdam (AMS Core)", flag: "🇳🇱", latency: 41 },
+    { ip: "45.74.31.25", port: 9540, country: "Netherlands", code: "NL", city: "Amsterdam Hub", flag: "🇳🇱", latency: 449 },
+    // --- South Asia (IN / PK) ---
+    { ip: "144.24.111.128", port: 1088, country: "India", code: "IN", city: "Mumbai Hub", flag: "🇮🇳", latency: 452 },
+    { ip: "103.88.234.239", port: 40016, country: "Pakistan", code: "PK", city: "Karachi Hub", flag: "🇵🇰", latency: 524 },
+    // --- United States (US) ---
+    { ip: "192.111.130.5", port: 17002, country: "United States", code: "US", city: "Atlanta Hub", flag: "🇺🇸", latency: 543 },
+    { ip: "184.178.172.23", port: 4145, country: "United States", code: "US", city: "Roanoke Hub", flag: "🇺🇸", latency: 580 },
+    { ip: "192.111.134.10", port: 4145, country: "United States", code: "US", city: "Dallas Hub", flag: "🇺🇸", latency: 571 },
+    { ip: "199.116.114.11", port: 4145, country: "United States", code: "US", city: "Los Angeles Hub", flag: "🇺🇸", latency: 607 },
+    // --- East Asia (JP) ---
+    { ip: "140.238.43.53", port: 54322, country: "Japan", code: "JP", city: "Tokyo Hub", flag: "🇯🇵", latency: 620 },
   ];
 
   // 100% Tested Live Working MTProto Proxies with Fake-TLS Secrets

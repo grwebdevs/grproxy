@@ -287,7 +287,7 @@ export async function handleVlessWebSocket(request: Request, validUuid: string):
           }
 
           // Acknowledge VLESS header to client: [version, 0]
-          serverWs.send(new Uint8Array([version, 0]));
+          serverWs.send(new Uint8Array([version, 0]).buffer);
 
           // Connect outbound TCP socket to destination
           tcpSocket = connect({ hostname: address, port });
@@ -310,8 +310,8 @@ export async function handleVlessWebSocket(request: Request, validUuid: string):
               while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                if (value) {
-                  serverWs.send(value);
+                if (value && value.byteLength > 0) {
+                  serverWs.send(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength));
                 }
               }
             } catch {
