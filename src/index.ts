@@ -2,7 +2,7 @@ import { Env } from './types';
 import { getActivePool, saveActivePool, getPoolStats } from './storage';
 import { scrapeAllSources } from './scraper';
 import { validateProxies } from './validator';
-import { generateEdgeNodes, handleVlessWebSocket } from './edgeNodes';
+import { generateEdgeNodes } from './edgeNodes';
 import { renderDashboardHtml } from './ui';
 import { getOrRotatePinnedProxy, generatePacScript } from './failover';
 import { pruneAndReplenishPool } from './autoHealer';
@@ -20,11 +20,6 @@ export default {
       if (url.pathname === '/ping') {
         return new Response('pong ' + (env.APP_NAME || 'no-var'));
       }
-
-    // 1. WebSocket VLESS Edge Relay Handler
-    if (request.headers.get('Upgrade') === 'websocket' || url.pathname === '/ws') {
-      return handleVlessWebSocket(request, userUuid);
-    }
 
     // CORS Headers for API calls
     const corsHeaders = {
@@ -282,30 +277,29 @@ export default {
       }
     }
 
-    // 10. Universal Subscription Endpoint (Sing-Box / Clash / V2Ray)
+    // 10. Universal Subscription Endpoint (SOCKS5 / Sing-Box)
     if (url.pathname === '/sub') {
-      const edgeNodes = generateEdgeNodes(host, userUuid);
+      const pool = await getActivePool(env);
+      const socksPool = pool.filter((p) => p.protocol === 'socks5');
       const format = url.searchParams.get('format');
 
       if (format === 'singbox' || request.headers.get('User-Agent')?.toLowerCase().includes('sing-box')) {
-        const nodeTags = edgeNodes.map((n) => n.id);
         const singboxConfig = {
           outbounds: [
             {
               type: 'urltest',
               tag: 'auto-fastest-failover',
-              outbounds: nodeTags,
+              outbounds: socksPool.map((n) => n.id),
               url: 'https://cp.cloudflare.com/generate_204',
               interval: '3m',
               tolerance: 50,
             },
-            {
-              type: 'selector',
-              tag: 'proxy-select',
-              outbounds: ['auto-fastest-failover', ...nodeTags, 'direct'],
-              default: 'auto-fastest-failover',
-            },
-            ...edgeNodes.map((n) => n.singboxOutbound),
+            ...socksPool.map((n) => ({
+              type: 'socks',
+              tag: n.id,
+              server: n.ip,
+              server_port: n.port,
+            })),
             {
               type: 'direct',
               tag: 'direct',
@@ -317,9 +311,9 @@ export default {
         });
       }
 
-      // Default: Standard Base64 subscription containing all 100+ edge nodes
-      const vlessLinks = edgeNodes.map((n) => n.vlessLink).join('\n');
-      const b64 = btoa(unescape(encodeURIComponent(vlessLinks)));
+      // Default: Clean SOCKS5 list base64 encoded
+      const links = socksPool.map((n) => `socks5://${n.ip}:${n.port}#${encodeURIComponent(n.country + ' - ' + n.city)}`).join('\n');
+      const b64 = btoa(unescape(encodeURIComponent(links)));
       return new Response(b64, {
         headers: {
           'Content-Type': 'text/plain;charset=UTF-8',
